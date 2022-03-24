@@ -1,0 +1,72 @@
+body {
+    /* background-image: url('../../assets/brooklyn-bridge.jpg'); */
+}
+
+.login-main-container{
+  display:flex;
+  flex-direction: column;
+}
+
+.login-main-container a {
+  color:#91CB82;
+}
+
+.login-main-container a:hover{
+  color:#71A663;
+}
+
+.headerText, .headerText2 {
+    color: white;
+}
+
+  .header-container {
+    text-align: center;
+    margin-top: 3%;
+  }
+
+  .login-container {
+    margin-top: 5%;
+    height: 60%;
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(70px);
+    border-radius: 16px;
+
+  }
+  .textBox-login {
+    padding: 10px;
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: none;
+    opacity: 0.8;
+  }
+  .btn-login {
+    padding: 10px;
+    font-size: 18px;
+    margin-bottom: 10px;
+    border: none;
+    color: white;
+    background-color: #232526;
+    border-radius: 8px;
+  }
+
+  .btn-login:hover {
+    background-color: black;
+  }
+
+  .google-login {
+    background-color: #91CB82;
+  }
+
+  .google-login:hover {
+    background-color: #71A663;
+  }
+
+  .login div {
+    margin-top: 7px;
+  }
