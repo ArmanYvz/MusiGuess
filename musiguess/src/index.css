@@ -1,5 +1,19 @@
+*{
+  margin:0
+}
+@font-face {
+  font-family: 'Sarala-Regular';
+  src: url('./fonts/Sarala-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Sarala-Bold';
+  src: url('./fonts/Sarala-Bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('./fonts/Roboto-Regular.ttf') format('truetype');
+}
 body {
-  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
