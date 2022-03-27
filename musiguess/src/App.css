@@ -1,3 +1,6 @@
-.App {
-  text-align: center;
+body{
+    background: rgb(16,25,58,1) linear-gradient(175deg, rgba(7, 129, 242, 0.5) 0%, rgba(242, 7, 7, 0.3) 40%, rgba(7, 129, 242, 0.1) 100%);
+    backdrop-filter: blur(10px);
+    height: 100vh;
+    overflow: hidden;
 }
