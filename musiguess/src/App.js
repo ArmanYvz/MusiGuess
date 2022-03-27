@@ -9,6 +9,7 @@ import './App.css';
 import Login from "./components/Login/Login.js";
 import ResetPassword from "./components/ResetPassword/ResetPassword.js";
 import Register from "./components/Register/Register.js";
+import Home from './components/Home/Home';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route exact path = "/" element = {<Login/>} />
           <Route exact path = "/resetpassword" element = {<ResetPassword/>} />
           <Route exact path = "/register" element = {<Register/>} />
+          <Route exact path = "/home" element = {<Home/>} />
         </Routes>
       </div>
     </Router>

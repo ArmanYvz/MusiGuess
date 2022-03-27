@@ -25,7 +25,7 @@ function Login() {
             return;
         }
         if (user) {
-            navigate.replace("/Home");
+            navigate("/Home", {replace: true});
         }
     }, [user, loading]);
     return (
