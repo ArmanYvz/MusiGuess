@@ -1,0 +1,171 @@
+.lobbies{
+  display:flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.lobbiesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 2rem;
+}
+
+.lobbiesHeader__logoText__top {
+  font-family: "Sarala-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 64px;
+
+  color: #eaee13;
+}
+
+.lobbiesHeader__logoText__bottom {
+  font-family: "Sarala-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 32px;
+  margin-left: 5.5rem;
+
+  color: #ffffff;
+}
+
+.lobbies h1 {
+  font-family: "Sarala-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 78px;
+
+  color: #ffffff;
+}
+
+.lobbiesHeader__backToHomeButton {
+  width: 190px;
+  height: 55px;
+  background: rgba(234, 238, 19, 0.6);
+  border: none;
+  border-radius: 22px;
+  cursor: pointer;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease-in-out;
+
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 15px;
+
+  color: black;
+}
+
+.lobbiesHeader__backToHomeButton:hover {
+  background-color: rgba(234, 238, 19, 1);
+  border: 1px solid black;
+}
+
+
+.lobbiesBody{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap:2rem;
+}
+
+.lobbiesBody__table{
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(70px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 70%;
+}
+
+.lobbiesBody__table__header{
+  display:flex;
+  justify-content: center;
+  gap:6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  padding-bottom:1rem;
+}
+
+.lobbiesBody__table__header p {
+  width: 8rem;
+  font-family: 'Sarala-Regular';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 33px;
+
+  color: #FFFFFF;
+
+}
+.lobbiesBody__table__body{
+  height: 45vh;
+  scrollbar-width: none;
+  overflow: auto;
+  margin-top: 0.5rem;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.lobbiesBody__table_body_row{
+  display:flex;
+  justify-content: center;
+  gap: 6rem;
+  align-items: center;
+  margin:1rem 2rem;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(70px);
+  padding:1rem;
+  text-align: start;
+  border-radius: 16px;
+  transition: all 0.2s ease-in-out;
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.25); */
+}
+
+.lobbiesBody__table_body_row:hover{
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(70px);
+  cursor: pointer;
+}
+
+.lobbiesBody__table_body_row p{
+  width: 8rem;
+  font-family: 'Sarala-Regular';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 33px;
+  color: #000000;
+}
+
+.lobbiesBody__button{
+  width: 300px;
+  height: 55px;
+  background: rgba(234, 238, 19, 0.6);
+  border: none;
+  border-radius: 22px;
+  cursor: pointer;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease-in-out;
+
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 15px;
+
+  color: black;
+  margin-right:auto;
+  margin-left:14vw;
+}
+
+.lobbiesBody__button:hover{
+  background-color: rgba(234, 238, 19, 1);
+  border: 1px solid black;
+}
