@@ -45,7 +45,7 @@
 .lobbiesHeader__backToHomeButton {
   width: 190px;
   height: 55px;
-  background: rgba(234, 238, 19, 0.6);
+  background: rgba(242, 7, 7, 0.4);
   border: none;
   border-radius: 22px;
   cursor: pointer;
@@ -62,7 +62,7 @@
 }
 
 .lobbiesHeader__backToHomeButton:hover {
-  background-color: rgba(234, 238, 19, 1);
+  background-color: rgba(242, 7, 7, 0.8);
   border: 1px solid black;
 }
 
