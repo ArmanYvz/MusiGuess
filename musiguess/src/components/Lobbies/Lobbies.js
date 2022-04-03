@@ -15,6 +15,10 @@ const Lobbies = () => {
 
   }
 
+  const handleCreateNewLobby = () => { 
+    navigate("/lobby", { replace: true });
+  }
+
   return (
     <div className="lobbies">
       <div className="lobbiesHeader">
@@ -89,7 +93,7 @@ const Lobbies = () => {
             </div>
           </div>
         </div>
-        <button className = "lobbiesBody__button">Create New Lobby</button>
+        <button className = "lobbiesBody__button" onClick= {handleCreateNewLobby}>Create New Lobby</button>
       </div>
     </div>
   );

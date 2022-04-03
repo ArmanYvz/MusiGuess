@@ -7,6 +7,7 @@ import ResetPassword from "./components/ResetPassword/ResetPassword.js";
 import Register from "./components/Register/Register.js";
 import Home from "./components/Home/Home";
 import Lobbies from "./components/Lobbies/Lobbies";
+import Lobby from "./components/Lobby/Lobby";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/home" element={<Home />} />
           <Route exact path="lobbies" element={<Lobbies />} />
+          <Route exact path="lobby" element={<Lobby />} />
         </Routes>
       </div>
     </Router>
