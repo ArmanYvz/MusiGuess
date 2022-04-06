@@ -1,0 +1,249 @@
+.game{
+    display:flex;
+    flex-direction: column;
+    margin:2rem;
+    gap:1rem;
+    justify-content:center;
+}
+
+.game__main{
+    display:flex;
+    justify-content: center;
+    gap:4rem;
+}
+
+.game__main__left{
+    flex:3 
+    /* display: flex;
+    flex-direction: column; */
+}
+
+.game__main__left__questionContainer{
+    /* background: rgba(255, 255, 255, 0.5); */
+    display:flex;
+    flex-direction: column;
+    gap:2rem;
+    background:linear-gradient(180deg, rgba(255, 255, 255,0.8) 0%, rgba(225, 225, 225, 0.5) 100%);
+    backdrop-filter: blur(70px);
+    border-radius: 16px;
+    padding:1.5rem;
+    height: 75vh;
+}
+
+.game__main__left__questionContainer__question{
+    display:flex;
+    justify-content:space-around;
+}
+
+.game__main__left__questionContainer__question p {
+    font-family: 'Sarala-Regular';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 52px;
+}
+
+.game__main__left__questionContainer__answers{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.game__main__left__questionContainer__answers__answer {
+    width: 40%;
+    background-color: rgba(255, 255, 255, 0.5); ;
+    backdrop-filter: blur(70px);
+    border-radius: 16px;
+    padding:1rem;
+    margin: 1rem;
+}
+
+.game__main__left__questionContainer__answers__answer:hover{
+    background-color: rgba(227, 227, 182, 0.8);
+    cursor: pointer;
+}
+
+
+.game__main__right{
+    flex:2.5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap:2rem;
+}
+
+.game__main__right__leaderboardContainer{
+    height:75vh;
+    width: 94%;
+    background: linear-gradient(180deg, rgb(170, 0, 0,0.5) 0%, rgba(168, 168, 168, 1) 100%);;
+    backdrop-filter: blur(70px);
+    border-radius: 16px;
+    padding:1.5rem;
+    display: flex;
+    flex-direction:column;  
+    gap: 0.5rem;
+}
+
+.game__main__right__leaderboardContainer__roundScores{
+
+}
+
+.game__main__right__leaderboardContainer__roundScores__table{
+    height: 28vh;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(70px);
+    padding:1rem;
+    border-radius:16px;
+    overflow: scroll;
+    display:flex;
+    flex-direction: column;
+}
+
+.game__main__right__leaderboardContainer__overallScores{
+    /* flex:3; */
+}
+
+.game__main__right__leaderboardContainer__overallScores__table{
+    height: 28vh;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(70px);
+    padding:1rem;
+    border-radius:16px;
+    overflow:scroll;
+    display:flex;
+    flex-direction: column;
+}
+
+.game__main__right__leaderboardContainer__table__row{
+    display:flex;
+    justify-content: space-between;
+    background-color: rgb(170, 0, 0,0.3);
+    backdrop-filter: blur(70px);
+    padding:0.5rem;
+    border-radius: 16px;
+    margin:0.5rem;
+}
+
+.game__main__right__leaderboardContainer__table__row p{
+    margin:0 1.5rem;
+}
+
+
+.game__footer__right{
+    display: flex;
+    align-items: center;
+    gap:2rem;
+}
+
+.game__footer__right__buttonNextRound{
+    width: 190px;
+    height: 55px;
+    background: rgba(3, 238, 105, 0.6);
+    border: none;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 15px;
+  
+    color: black;
+
+}
+
+.game__footer__right__buttonNextRound:hover{
+    background: rgba(3, 238, 105, 1);
+}
+
+.game__footer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game__footer__left{
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.game__main__left__questionContainer__question{
+    display:flex;
+    align-items: center;
+}
+
+.game__main__left__questionContainer__question h1 {
+    font-family: 'Sarala-Regular';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 36px;
+
+    color: black;
+}
+
+.game__footer__right__exitButton{
+    width: 190px;
+    height: 55px;
+    background: rgba(242, 7, 7, 0.4);
+    border: none;
+    border-radius: 22px;
+    cursor: pointer;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease-in-out;
+  
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 15px;
+  
+    color: black;
+}
+
+.game__footer__right__exitButton:hover{
+    background-color: rgba(242, 7, 7, 0.8);
+}
+
+.game__footer__left__logo {
+    display:flex;
+    flex-direction:column;
+}
+
+.game__footer__left__logo__top {
+    font-family: "Sarala-Regular";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 39px;
+    /* line-height: 64px; */
+    color: rgba(234, 238, 19, 0.5);
+    transition: all 0.3s ease-in-out;
+}
+
+.game__footer__left__logo__bottom{
+    font-family: "Sarala-Regular";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 39px;
+    /* line-height: 32px; */
+    margin-left: 5rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease-in-out;
+}
+
+.game__footer__left__logo__top:hover{
+    color: rgba(234, 238, 19, 1);
+}
+
+.game__right__logo__bottom:hover{
+    color: rgba(255, 255, 255, 1);
+}
+
+.game__footer__right__leaderboardContainer{
+    background:linear-gradient(180deg, rgba(255, 255, 255,0.8) 0%, rgba(225, 225, 225, 0.5) 100%);
+    backdrop-filter: blur(70px);
+    border-radius: 16px;
+    padding:3rem;
+}
