@@ -9,6 +9,10 @@ const Lobby = () => {
     navigate("/lobbies", { replace: true });
   };
 
+  const handleStartGame = () => {
+    navigate("/game", { replace: true });
+  }
+
   return (
     <div className="lobby">
       <div className="lobby__main">
@@ -72,7 +76,7 @@ const Lobby = () => {
         </div>
       </div>
       <div className="lobby__footer">
-        <button className="lobby__footer__button--yellow">Start</button>
+        <button onClick = {handleStartGame} className="lobby__footer__button--yellow">Start</button>
         <button onClick={handleBackToLobby} className="lobby__footer__button">
           <KeyboardBackspaceIcon fontSize="large" />
         </button>
