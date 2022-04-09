@@ -2,6 +2,9 @@
   display:flex;
   flex-direction: column;
   gap: 3rem;
+  z-index: 1;
+  transition: all 0.2s ease-in-out;
+  /* filter: blur(70px); */
 }
 
 .lobbiesHeader {
