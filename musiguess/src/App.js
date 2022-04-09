@@ -9,6 +9,7 @@ import Home from "./components/Home/Home";
 import Lobbies from "./components/Lobbies/Lobbies";
 import Lobby from "./components/Lobby/Lobby";
 import Game from "./components/Game/Game";
+import GameResults from "./components/GameResults/GameResults";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route exact path="/lobbies" element={<Lobbies />} />
           <Route exact path="/lobby" element={<Lobby />} />
           <Route exact path="/game" element = {<Game />} />
+          <Route exact path="/gameresults" element = {<GameResults />} />
         </Routes>
       </div>
     </Router>
