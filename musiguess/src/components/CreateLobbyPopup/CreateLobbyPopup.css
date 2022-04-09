@@ -1,0 +1,100 @@
+.createLobby{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    z-index: 2;
+}
+
+.createLobbyPopup{
+    display: flex;
+    flex-direction: column; 
+    width: 30%;
+    height: 35%;
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(70px);
+    padding:2rem;
+    border-radius: 16px;
+    gap:2rem;
+}
+
+.createLobbyPopup__header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.createLobbyPopup__header h2{
+    font-family: 'Sarala-Regular';
+}
+
+.createLobbyPopup__body{
+    display: flex;
+    flex-direction: column;
+    gap:1rem;
+}
+
+.createLobbyPopup__body h3{
+    width: 40%;
+}
+
+.createLobbyPopup__body__top input{
+    width: 33%;
+    border-radius: 16px;
+    border: none;
+    padding: 0 1rem;
+
+    font-family: "Sarala-Regular";
+    font-size: 14px;
+}
+
+.createLobbyPopup__body__bottom input{
+    width: 40%;
+}
+
+
+.createLobbyPopup__body__top input:focus{
+    outline: none;
+}
+
+.createLobbyPopup__body__top{
+    display: flex;
+    gap: 4rem;
+}
+
+.createLobbyPopup__body__bottom{
+    display:flex;
+    gap: 4rem;
+}
+
+.createLobbyPopup__footer{
+    display:flex;
+    margin-top:auto;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.createLobbyPopup__footer__createButton{
+    width: 190px;
+    height: 55px;
+    background: rgba(3, 238, 105, 0.6);
+    border: none;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 15px;
+  
+    color: black;
+}
+
+.createLobbyPopup__footer__createButton:hover{
+    background: rgba(3, 238, 105, 1);
+}
