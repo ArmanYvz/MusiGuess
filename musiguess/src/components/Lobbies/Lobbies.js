@@ -2,22 +2,99 @@ import "./Lobbies.css";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
 import React from "react";
+import {useState,useEffect} from "react";
 import { useNavigate } from "react-router";
 
+//import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
+
+import { Button, Modal, Form } from 'react-bootstrap';
+
+import { db } from "../../firebase";
+
+//import 'bootstrap/dist/css/bootstrap.min.css';
+
+
+//import { doc, setDoc, collection, query, where, getDocs, getDoc, onSnapshot, deleteDoc } from "firebase/firestore"; 
+import { doc, collection, query, onSnapshot, setDoc } from "firebase/firestore"; 
+
+//import 'bootstrap/dist/css/bootstrap.min.css';
+
 const Lobbies = () => {
+  var lobbyId = 0;
   const navigate = useNavigate();
+
+  const [lobbies, setLobbies] = useState([]);
+  const [joinLobbyId, setJoinLobbyId] = useState("");
+
+  const [popupShow, setPopupShow] = useState(false);
+
+  const [newLobbyName, setNewLobbyName] = useState("");
+  const [newLobbyMaxPlayers, setNewLobbyMaxPlayers] = useState(5);
+
+  const handlePopupClose = () => setPopupShow(false);
+  const handlePopupShow = () => setPopupShow(true);
 
   const handleBackHomeButton = () => {
     navigate("/home", { replace: true });
   };
 
-  const LobbyRow = () =>{
-
+  function generateLobbyID() {
+    return Math.floor(100000000 + Math.random() * 900000000); 
   }
 
   const handleCreateNewLobby = () => { 
+    // a pop-up will be opened. user will enter lobby name and toggle max players allowed. 
+    // when he clicks create button, DB new lobby generation function will be triggered. then user will be redirected to lobby.  
     navigate("/lobby", { replace: true });
   }
+
+  async function handlePopupCreateLobbyButton () {
+    lobbyId = generateLobbyID();
+
+    await setDoc(doc(db, "lobbies", `${lobbyId}`), {
+      currentRound: 0,
+      isActive: true,
+      isGameStarted: false,
+      lobbyID: lobbyId,
+      maxPlayers: newLobbyMaxPlayers,
+      name: newLobbyName,
+      noRounds: 5,
+      players: [],
+      tracks: [],
+      status: "Waiting",
+      playbackTime: 15,
+      playlistID: "",
+      roundEnded: "",
+      wrongAnswers: [],
+
+
+
+    });
+  }
+
+  const handleJoinExistingLobby = () => {
+    // here will come the lobby join functionality. user will be added to lobby with given id
+  }
+
+  // below useEffect method will detect changes in lobby list 
+  // current lobbies in db will kept fresh inside of an array
+  useEffect(() => {
+    const q = query(collection(db, "lobbies/"));
+    var lobbiesFromDb = [];
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      lobbiesFromDb = [];
+      querySnapshot.forEach((lobby) => {
+        lobbiesFromDb.push(lobby.data());
+      });
+      setLobbies(lobbiesFromDb);
+
+      return () => {
+        unsubscribe();
+      }
+
+    })
+  }, []);
 
   return (
     <div className="lobbies">
@@ -43,58 +120,54 @@ const Lobbies = () => {
             <p>Players</p>
           </div>
           <div className="lobbiesBody__table__body">
-            <div className="lobbiesBody__table_body_row">
-              <p>Lobby 1</p>
-              <p>10204</p>
-              <p>Waiting</p>
-              <p>2/4</p>
-            </div>
-            <div className="lobbiesBody__table_body_row">
-              <p>Lobby 2</p>
-              <p>154</p>
-              <p>Waiting</p>
-              <p>1/6</p>
-            </div>
-            <div className="lobbiesBody__table_body_row">
-              <p>Lobby 2</p>
-              <p>154</p>
-              <p>Waiting</p>
-              <p>1/6</p>
-            </div>
-            <div className="lobbiesBody__table_body_row">
-              <p>Lobby 2</p>
-              <p>154</p>
-              <p>Waiting</p>
-              <p>1/6</p>
-            </div>
-            <div className="lobbiesBody__table_body_row">
-              <p>Lobby 2</p>
-              <p>154</p>
-              <p>Waiting</p>
-              <p>1/6</p>
-            </div>
-            <div className="lobbiesBody__table_body_row">
-              <p>Lobby 2</p>
-              <p>154</p>
-              <p>Waiting</p>
-              <p>1/6</p>
-            </div>
-            <div className="lobbiesBody__table_body_row">
-              <p>Lobby 2</p>
-              <p>154</p>
-              <p>Waiting</p>
-              <p>1/6</p>
-            </div>
-            <div className="lobbiesBody__table_body_row">
-              <p>Lobby 2</p>
-              <p>154</p>
-              <p>Waiting</p>
-              <p>1/6</p>
-            </div>
+            {lobbies.map((lobby) => {
+              return(
+                <div className="lobbiesBody__table_body_row">
+                  <p>{lobby.name}</p>
+                  <p>{lobby.lobbyID}</p>
+                  <p>{lobby.status}</p>
+                  <p>{lobby.players.length}/{lobby.maxPlayers}</p>
+                </div>
+              )
+            })}
+            
           </div>
         </div>
-        <button className = "lobbiesBody__button" onClick= {handleCreateNewLobby}>Create New Lobby</button>
+        <div className="lobbiesButtons">
+          <button className = "lobbiesBody__create_button" onClick= {handlePopupShow}>Create New Lobby</button>
+          <div className="lobbiesJoinButton">
+            <input type="text" className="joinLobbyTextbox" value ={joinLobbyId} onChange={(event) => {setJoinLobbyId(event.target.value);}} onInput={(event) => setJoinLobbyId(event.target.value)}></input>
+            <button disabled={joinLobbyId === ""} className = "lobbiesBody__join_button" onClick= {handleJoinExistingLobby}>Join Lobby with ID</button>
+          </div>
+          
+        </div>
+        
       </div>
+
+      <Modal show={popupShow} className = "modal" onHide={handlePopupClose}>
+        <Modal.Header closeButton>
+          <p></p>
+        </Modal.Header>
+        <Modal.Body className="modal-body">
+          <div className="popupNewLobbySettings">
+            <h3>Lobby Name:</h3>
+            <input type="text" className="newLobbyNameTextbox" value ={newLobbyName} onChange={(event) => {setNewLobbyName(event.target.value);}} onInput={(event) => setNewLobbyName(event.target.value)}></input>
+            <h3>Max # of Players: {newLobbyMaxPlayers}</h3>
+            <input type="range" class="form-range" id="newLobbyMaxPlayersRange" min="2" max="10" step="1" defaultValue={newLobbyMaxPlayers} onChange={ (event) => setNewLobbyMaxPlayers(event.target.value)} value={newLobbyMaxPlayers}></input>
+        
+          </div>
+
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handlePopupClose}>
+              Cancel
+          </Button>
+          <Button variant="success" disabled={newLobbyName === ""} onClick={handlePopupCreateLobbyButton}>
+              Create New Lobby
+          </Button>
+        </Modal.Footer>
+
+      </Modal>
     </div>
   );
 };
