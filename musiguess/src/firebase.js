@@ -1,6 +1,7 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"; 
 
 import "firebase/compat/firestore";
 
@@ -121,6 +122,27 @@ const logout = () => {
     localStorage.setItem("userName", "");
 };
 
+// insert user to the lobby
+
+const insertUserToLobbyDB = async (user,lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  await updateDoc(lobbyRef,{
+    players:arrayUnion(user)
+  });
+}
+
+// remove user from the lobby
+
+const deleteUserFromLobbyDB = async (user,lobbyId) => {
+
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  await updateDoc(lobbyRef,{
+    players:arrayRemove(user)
+  });
+}
+
 export {
     auth,
     db,
@@ -128,5 +150,7 @@ export {
     signInWithEmailAndPassword,
     registerWithEmailAndPassword,
     sendPasswordResetEmail,
+    insertUserToLobbyDB,
+    deleteUserFromLobbyDB,
     logout,
 };

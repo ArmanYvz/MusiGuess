@@ -5,25 +5,14 @@ import React from "react";
 import {useState,useEffect} from "react";
 import { useNavigate } from "react-router";
 
-//import Popup from 'reactjs-popup';
-import 'reactjs-popup/dist/index.css';
-
-import { Button, Modal, Form } from 'react-bootstrap';
-
 import { db } from "../../firebase";
 
 import CreateLobbyPopup from "../CreateLobbyPopup/CreateLobbyPopup";
 
-//import 'bootstrap/dist/css/bootstrap.min.css';
-
-
 //import { doc, setDoc, collection, query, where, getDocs, getDoc, onSnapshot, deleteDoc } from "firebase/firestore"; 
 import { doc, collection, query, onSnapshot, setDoc } from "firebase/firestore"; 
 
-//import 'bootstrap/dist/css/bootstrap.min.css';
-
 const Lobbies = () => {
-  var lobbyId = 0;
   const navigate = useNavigate();
 
   const [lobbies, setLobbies] = useState([]);
@@ -46,14 +35,8 @@ const Lobbies = () => {
     return Math.floor(100000000 + Math.random() * 900000000); 
   }
 
-  const handleCreateNewLobby = () => { 
-    // a pop-up will be opened. user will enter lobby name and toggle max players allowed. 
-    // when he clicks create button, DB new lobby generation function will be triggered. then user will be redirected to lobby.  
-    navigate("/lobby", { replace: true });
-  }
-
   async function handlePopupCreateLobbyButton () {
-    lobbyId = generateLobbyID();
+    let lobbyId = generateLobbyID();
 
     await setDoc(doc(db, "lobbies", `${lobbyId}`), {
       currentRound: 0,
@@ -76,30 +59,32 @@ const Lobbies = () => {
     setPopupShow(false);
     setNewLobbyName("");
     setNewLobbyMaxPlayers(5);
+    navigate(`/lobbies/${lobbyId}`,{state:{ isHost:true}});
 
   }
 
   const handleJoinExistingLobby = () => {
     // here will come the lobby join functionality. user will be added to lobby with given id
+    navigate(`/lobbies/${joinLobbyId}`);
   }
 
   // below useEffect method will detect changes in lobby list 
   // current lobbies in db will kept fresh inside of an array
   useEffect(() => {
     const q = query(collection(db, "lobbies/"));
-    var lobbiesFromDb = [];
+    let lobbiesFromDb = [];
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       lobbiesFromDb = [];
       querySnapshot.forEach((lobby) => {
         lobbiesFromDb.push(lobby.data());
       });
       setLobbies(lobbiesFromDb);
-
-      return () => {
-        unsubscribe();
-      }
-
     })
+
+    return () => {
+      unsubscribe();
+    }
+
   }, []);
 
   return (
@@ -140,7 +125,7 @@ const Lobbies = () => {
             <div className="lobbiesBody__table__body">
               {lobbies.map((lobby) => {
                 return(
-                  <div className="lobbiesBody__table_body_row">
+                  <div key = {lobby.lobbyID} onClick = {()=> navigate(`/lobbies/${lobby.lobbyID}`)} className="lobbiesBody__table_body_row">
                     <p>{lobby.name}</p>
                     <p>{lobby.lobbyID}</p>
                     <p>{lobby.status}</p>
@@ -161,33 +146,6 @@ const Lobbies = () => {
           </div>
           
         </div>
-
-        
-
-        {/* <Modal show={popupShow} className = "modal" onHide={handlePopupClose}>
-          <Modal.Header closeButton>
-            <p></p>
-          </Modal.Header>
-          <Modal.Body className="modal-body">
-            <div className="popupNewLobbySettings">
-              <h3>Lobby Name:</h3>
-              <input type="text" className="newLobbyNameTextbox" value ={newLobbyName} onChange={(event) => {setNewLobbyName(event.target.value);}} onInput={(event) => setNewLobbyName(event.target.value)}></input>
-              <h3>Max # of Players: {newLobbyMaxPlayers}</h3>
-              <input type="range" class="form-range" id="newLobbyMaxPlayersRange" min="2" max="10" step="1" defaultValue={newLobbyMaxPlayers} onChange={ (event) => setNewLobbyMaxPlayers(event.target.value)} value={newLobbyMaxPlayers}></input>
-          
-            </div>
-
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="danger" onClick={handlePopupClose}>
-                Cancel
-            </Button>
-            <Button variant="success" disabled={newLobbyName === ""} onClick={handlePopupCreateLobbyButton}>
-                Create New Lobby
-            </Button>
-          </Modal.Footer>
-
-        </Modal> */}
     </div>
 
 

@@ -21,7 +21,7 @@ const CreateLobbyPopup = ({handlePopupClose,newLobbyName,setNewLobbyName,newLobb
                 </div>
                 <div className="createLobbyPopup__body__bottom">
                     <h3>Max # of Players: {newLobbyMaxPlayers}</h3>
-                    <input value = {newLobbyMaxPlayers} onChange = {(e)=>setNewLobbyMaxPlayers(e.target.value)} type="range" class="form-range"  min="2" max="10" step="1" />
+                    <input value = {newLobbyMaxPlayers} onChange = {(e)=>setNewLobbyMaxPlayers(e.target.value)} type="range"  min="2" max="10" step="1" />
                 </div>
 
             </div>
