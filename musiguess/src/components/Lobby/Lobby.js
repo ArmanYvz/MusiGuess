@@ -4,7 +4,7 @@ import "./Lobby.css";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB } from "../../firebase";
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
+import { arrayUnion, collection, doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import useLobby from "../../hooks/useLobby";
 const Lobby = () => {
@@ -16,8 +16,49 @@ const Lobby = () => {
   const { state } = useLocation();
 
   //a state to get the lobby data
-  const { isFetchingLobby, lobby } = useLobby({ lobbyId });
+  // const { isFetchingLobby, lobby, setLobby } = useLobby({ lobbyId });
 
+  const [isFetchingLobby,setIsFetchingLobby] = useState(true);
+  const [lobby,setLobby] = useState();
+
+
+  useEffect(()=>{
+      const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
+
+      const unsubscribe = onSnapshot(lobbyDocRef, (doc) => {
+          if(doc.data()){
+              setLobby(doc.data());
+              setIsFetchingLobby(false);
+          }
+          else{
+              console.log("There is no lobby with this id");
+              alert("There is no lobby with this id");
+              navigate("/lobbies", { replace: true });
+          }
+
+      })
+
+      return () => {
+          unsubscribe();
+      }
+  },[]);
+
+  useEffect( async()=>{
+    const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
+    console.log("db update gidiyoo")
+    await updateDoc(lobbyDocRef, {
+        ...lobby
+    });
+      },[lobby]);
+
+
+  
+  const handleTest = () =>{
+        let lobbyCopy = lobby;
+        lobbyCopy.players[0].scores[0] = 152323;
+        setLobby({...lobbyCopy});
+      }
+    
 
   // declare the user ?? should user be a state?
   // const isStateExists = state ? true : false;
@@ -25,21 +66,33 @@ const Lobby = () => {
   // let user = {userId: localStorage.getItem("userId"), userName: localStorage.getItem("userName"), isHost: isHostValue};
 
   // a state to store user info
-  const [player, setPlayer] = useState({
+  // const [player, setPlayer] = useState({
+  //   userId: localStorage.getItem("userId"),
+  //   userName: localStorage.getItem("userName"),
+  //   isHost: false,
+  //   scores: [],
+  //   answers: [],
+  //   remainingTimes: [],
+  // });
+
+    let newPlayer = {
     userId: localStorage.getItem("userId"),
     userName: localStorage.getItem("userName"),
     isHost: false,
     scores: [],
     answers: [],
     remainingTimes: [],
-  });
+  };
+
+
 
   // make the user host if he came from lobbies with create user button
   useEffect(() => {
     if (state && state.isHost) {
-      setPlayer((prevUser) => {
-        return { ...prevUser, isHost: true };
-      });
+      // setPlayer((prevUser) => {
+      //   return { ...prevUser, isHost: true };
+      // });
+      newPlayer.isHost = true;
     }
   }, []);
 
@@ -47,11 +100,24 @@ const Lobby = () => {
   useEffect(() => {
     if (!isFetchingLobby && lobby) {
       console.log("adding user...");
-      insertPlayerToLobbyDB(player, lobbyId);
+
+      // insertPlayerToLobbyDB(player, lobbyId);
+      setLobby({
+        ...lobby,
+        players: [...lobby.players, newPlayer] 
+      })
 
       return () => {
         console.log("deleting user...");
-        deletePlayerFromLobbyDB(player, lobbyId);
+        // console.log(lobby.players.filter((player) => player.userId === localStorage.getItem("userId")))
+        console.log(lobby.players.filter((player) => player.userId === localStorage.getItem("userId")));
+        // const userToDelete = lobby.players.filter((player) => player.userId === localStorage.getItem("userId"));
+        
+        // deletePlayerFromLobbyDB(userToDelete, lobbyId);
+        // setLobby({
+        //   ...lobby,
+        //   players: "BRUH"
+        // })
       };
     }
   }, [isFetchingLobby]);
@@ -60,13 +126,15 @@ const Lobby = () => {
   useEffect(() => {
     window.onbeforeunload = function () {
       console.log("deleting user...");
-      deletePlayerFromLobbyDB(player, lobbyId);
+      // deletePlayerFromLobbyDB(player, lobbyId);
     };
 
     return () => {
       window.onbeforeunload = null;
     };
   }, []);
+
+
 
 
   const handleBackToLobby = () => {
@@ -96,6 +164,8 @@ const Lobby = () => {
       </div>
     );
   };
+
+
 
   return (
     <>
@@ -158,6 +228,7 @@ const Lobby = () => {
               <KeyboardBackspaceIcon fontSize="large" />
             </button>
             <h2>Lobby ID : {lobbyId}</h2>
+            <button onClick={handleTest}>TESTT</button>
           </div>
         </div>
       }
