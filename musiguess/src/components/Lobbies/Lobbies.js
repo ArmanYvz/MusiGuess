@@ -38,27 +38,32 @@ const Lobbies = () => {
   async function handlePopupCreateLobbyButton () {
     let lobbyId = generateLobbyID();
 
-    await setDoc(doc(db, "lobbies", `${lobbyId}`), {
-      currentRound: 0,
-      isActive: true,
-      isGameStarted: false,
-      lobbyID: lobbyId,
-      maxPlayers: newLobbyMaxPlayers,
-      name: newLobbyName,
-      noRounds: 5,
-      players: [],
-      tracks: [],
-      status: "Waiting",
-      playbackTime: 15,
-      playlistID: "",
-      roundEnded: "",
-      wrongAnswers: [],
+    try{
+      await setDoc(doc(db, "lobbies", `${lobbyId}`), {
+        currentRound: 0,
+        isActive: true,
+        isGameStarted: false,
+        lobbyID: lobbyId,
+        maxPlayers: newLobbyMaxPlayers,
+        name: newLobbyName,
+        noRounds: 5,
+        players: [],
+        tracks: [],
+        status: "Waiting",
+        playbackTime: 15,
+        playlistID: "",
+        roundEnded: "",
+        wrongAnswers: [],
+  
+      });
+    }catch(error){
+      console.log("Something went wrong while creating lobby: ", error);
+      return;
+    }
 
-    });
-
-    setPopupShow(false);
-    setNewLobbyName("");
-    setNewLobbyMaxPlayers(5);
+    // setPopupShow(false);
+    // setNewLobbyName("");
+    // setNewLobbyMaxPlayers(5);
     navigate(`/lobbies/${lobbyId}`,{state:{ isHost:true}});
 
   }

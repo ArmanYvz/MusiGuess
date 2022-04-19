@@ -124,22 +124,22 @@ const logout = () => {
 
 // insert user to the lobby
 
-const insertUserToLobbyDB = async (user,lobbyId) => {
+const insertPlayerToLobbyDB = async (player,lobbyId) => {
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
   await updateDoc(lobbyRef,{
-    players:arrayUnion(user)
+    players:arrayUnion(player)
   });
 }
 
 // remove user from the lobby
 
-const deleteUserFromLobbyDB = async (user,lobbyId) => {
+const deletePlayerFromLobbyDB = async (player,lobbyId) => {
 
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
   await updateDoc(lobbyRef,{
-    players:arrayRemove(user)
+    players:arrayRemove(player)
   });
 }
 
@@ -150,7 +150,7 @@ export {
     signInWithEmailAndPassword,
     registerWithEmailAndPassword,
     sendPasswordResetEmail,
-    insertUserToLobbyDB,
-    deleteUserFromLobbyDB,
+    insertPlayerToLobbyDB,
+    deletePlayerFromLobbyDB,
     logout,
 };

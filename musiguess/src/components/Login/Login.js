@@ -30,40 +30,40 @@ function Login() {
     }, [user, loading]);
     return (
         <>
-        <div class="login-main-container">
-            <div class="header header-container">
-                <h1 class="headerText">MusiGuess</h1>
-                <h4 class="headerText2">Login to challenge your music repertoire!</h4>
+        <div className="login-main-container">
+            <div className="header header-container">
+                <h1 className="headerText">MusiGuess</h1>
+                <h4 className="headerText2">Login to challenge your music repertoire!</h4>
             </div>
-            <div class="container login-container">
+            <div className="container login-container">
                 <input
                     type="text"
-                    class="textBox-login"
+                    className="textBox-login"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="E-mail Address"
                 />
                 <input
                     type="password"
-                    class="textBox-login"
+                    className="textBox-login"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                 />
                 <button
-                    class="btn-login"
+                    className="btn-login"
                     onClick={handleLoginButtonClickEmail}
                 >
                     Login
                 </button>
-                <button class="btn-login google-login" onClick={signInWithGoogle}>
+                <button className="btn-login google-login" onClick={signInWithGoogle}>
                     Login with Google
                 </button>
                 <div>
-                    <Link to="/resetpassword"><a>Forgot Password</a></Link>
+                    <Link to="/resetpassword"><p>Forgot Password</p></Link>
                 </div>
                 <div>
-                    Don't have an account? <Link to="/register"><a>Register</a></Link> now.
+                    Don't have an account? <Link to="/register"><p>Register</p></Link> now.
                 </div>
             </div>
         </div>

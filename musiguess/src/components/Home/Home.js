@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Home.css";
 import band from "../../assets/band.png";
 import backgroundShape from "../../assets/backgroundShape.png";
+import { logout } from "../../firebase";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -15,16 +16,16 @@ const Home = () => {
     <div className="home">
       <div className="header">
         <div className="header__left">
-          <p className="header__left__topText">Musi</p>
-          <p className="header__left__bottomText">Guess</p>
+          <p className="header__left__topText noselect">Musi</p>
+          <p className="header__left__bottomText noselect">Guess</p>
         </div>
         <div className="header__right">
           <Link to="/" className="header__right__link">
             CONTACT
           </Link>
           <hr />
-          <h1 to="/" className="header__right__link">
-            WELCOME <span>USER123</span> !
+          <h1 to="/" className="header__right__link noselect">
+            WELCOME <span>{localStorage.getItem("userName").toUpperCase()}</span> !
           </h1>
         </div>
       </div>

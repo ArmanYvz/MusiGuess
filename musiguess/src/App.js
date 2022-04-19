@@ -24,6 +24,7 @@ function App() {
           <Route exact path="/lobbies/:lobbyId" element={<Lobby/>} />
           <Route exact path="/game" element = {<Game />} />
           <Route exact path="/gameresults" element = {<GameResults />} />
+          <Route path = "/*" element={<div>ERROR</div>}/>
         </Routes>
       </div>
     </Router>
