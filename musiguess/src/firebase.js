@@ -1,7 +1,7 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc } from "firebase/firestore"; 
+import { doc, setDoc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, getDocs, collection } from "firebase/firestore"; 
 
 import "firebase/compat/firestore";
 
@@ -145,6 +145,31 @@ const deletePlayerFromLobbyDB = async (playerId,lobbyId) => {
   await updateDoc(lobbyRef,{
     players:arrayRemove(playerToDelete)
   });
+
+  if(playerToDelete.isHost){
+    await makeAnotherPlayerHost(lobbyId);
+  }
+
+}
+
+const makeAnotherPlayerHost = async(lobbyId) =>{
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+  //let playerToMakeHost = lobby.players[0];
+
+  let playersCopy = lobby.players;
+  if(playersCopy.length != 0){
+
+    playersCopy[0].isHost = true;
+
+    await updateDoc(lobbyRef,{
+      players: [...playersCopy]
+    });
+
+  }
+
 }
 
 // delete a lobby
@@ -161,6 +186,20 @@ const getPlayerCountFromDB = async(lobbyId) => {
   return lobby.players.length;
 }
 
+//get playlists
+
+const getPlaylistsFromDB = async() => {
+
+  const playlistsSnapshot = await getDocs(collection(db, "playlists"));
+
+  let playlists = [];
+
+  playlistsSnapshot.forEach((doc) => {
+    playlists.push(doc.data());
+  });
+
+  return playlists;
+}
 
 
 export {
@@ -174,5 +213,6 @@ export {
     deletePlayerFromLobbyDB,
     deleteLobbyFromDB,
     getPlayerCountFromDB,
+    getPlaylistsFromDB,
     logout,
 };

@@ -109,6 +109,24 @@ p {
   width: 30vw;
   padding: 1rem;
   text-align: center;
+
+  font-family: "Sarala-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 33px;
+
+  color: #000000;
+}
+
+.lobby__main__left__settings__top__box option{
+  font-family: "Sarala-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 33px;
+
+  color: #000000;
 }
 
 .lobby__main__left__settings__bottom {

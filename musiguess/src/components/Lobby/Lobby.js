@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import "./Lobby.css";
-import { useNavigate, useParams, useLocation } from "react-router";
-import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB } from "../../firebase";
+import { useNavigate, useParams, useLocation, usePrompt} from "react-router";
+
+import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB } from "../../firebase";
 import { useEffect, useState } from "react";
-import { arrayUnion, collection, doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-import useLobby from "../../hooks/useLobby";
+// import useLobby from "../../hooks/useLobby";
+
 const Lobby = () => {
   const navigate = useNavigate();
   //get the loby id from url
@@ -21,6 +23,9 @@ const Lobby = () => {
   const [isFetchingLobby,setIsFetchingLobby] = useState(true);
   const [lobby,setLobby] = useState();
 
+  const {maxPlayers,players} = isFetchingLobby ? -1 : lobby;
+
+  const [playlists,setPlaylists] = useState([]);
 
   useEffect(()=>{
       const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
@@ -41,6 +46,7 @@ const Lobby = () => {
       return () => {
           unsubscribe();
       }
+
   },[]);
 
   // useEffect( async()=>{
@@ -50,22 +56,6 @@ const Lobby = () => {
   //       ...lobby
   //   });
   // },[lobby]);
-
-
-  // declare the user ?? should user be a state?
-  // const isStateExists = state ? true : false;
-  // const isHostValue = isStateExists ? state.isHost : false
-  // let user = {userId: localStorage.getItem("userId"), userName: localStorage.getItem("userName"), isHost: isHostValue};
-
-  // a state to store user info
-  // const [player, setPlayer] = useState({
-  //   userId: localStorage.getItem("userId"),
-  //   userName: localStorage.getItem("userName"),
-  //   isHost: false,
-  //   scores: [],
-  //   answers: [],
-  //   remainingTimes: [],
-  // });
 
   const [newPlayer,setNewPlayer] = useState({
     userId: localStorage.getItem("userId"),
@@ -93,38 +83,47 @@ const Lobby = () => {
   useEffect(() => {
     if (!isFetchingLobby) {
       console.log("adding user...");
-      insertPlayerToLobbyDB(newPlayer, lobbyId);
+      if(players.length +1 > maxPlayers){
+        alert("Lobby is full");
+        navigate("/lobbies", { replace: true });
+      }
+      else{
+        insertPlayerToLobbyDB(newPlayer, lobbyId);
+      }
 
       return () => {
         console.log("deleting user...");
         // delete user  if there is nobody left in the lobby delete lobby
         deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId)
-        .then(()=>{
-        getPlayerCountFromDB(lobbyId)
-        .then((playerCount)=>{
-            if(playerCount === 0){
-              console.log("nobody left! deleting the lobby...");
-              deleteLobbyFromDB(lobbyId);
-            }
-          }); 
-        })
+
       };
     }
   }, [isFetchingLobby]);
+
+
 
 
   // this removes user if user closes browser directly
   useEffect(() => {
     window.onbeforeunload = function () {
       console.log("deleting user...");
-      deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId);
-      
+      deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId)
     };
 
     return () => {
       window.onbeforeunload = null;
     };
   }, []);
+
+  useEffect(()=>{
+    console.log(playlists)
+    const playlistsFromDB = getPlaylistsFromDB();
+    playlistsFromDB.then(playlists => {
+      setPlaylists(playlists);
+    })
+    // setPlaylists(playlistsFromDB);
+    console.log(playlists)
+  },[])
 
 
 
@@ -136,6 +135,18 @@ const Lobby = () => {
   const handleStartGame = () => {
     navigate("/game", { replace: true });
   };
+
+  const PlaylistDropdown = () =>{
+    return(
+      <select className="lobby__main__left__settings__top__box">
+      {playlists.length !== 0 ? playlists.map((playlist)=>{
+          return(
+            <option key = {playlist.playlistId}>{playlist.playlistName}</option>
+          )
+        }):  <option>No Playlists</option>}
+    </select>
+    )
+  }
 
   //lobby players render
   const LobbyPlayers = () => {
@@ -171,9 +182,8 @@ const Lobby = () => {
               <div className="lobby__main__left__settings box">
                 <div className="lobby__main__left__settings__top">
                   <p>Playlist</p>
-                  <div className="lobby__main__left__settings__top__box">
-                    <p>Best of Metallica</p>
-                  </div>
+                  <PlaylistDropdown/>
+                  
                 </div>
                 <div className="lobby__main__left__settings__bottom">
                   <div className="lobby__main__left__settings__bottom__left">
