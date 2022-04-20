@@ -25,7 +25,7 @@ const Home = () => {
           </Link>
           <hr />
           <h1 to="/" className="header__right__link noselect">
-            WELCOME <span>{localStorage.getItem("userName").toUpperCase()}</span> !
+            WELCOME <span>{localStorage.getItem("userName") ? localStorage.getItem("userName").toUpperCase(): "local storage bruhladı"}</span> !
           </h1>
         </div>
       </div>

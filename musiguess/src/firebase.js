@@ -1,7 +1,7 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"; 
+import { doc, setDoc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc } from "firebase/firestore"; 
 
 import "firebase/compat/firestore";
 
@@ -134,14 +134,34 @@ const insertPlayerToLobbyDB = async (player,lobbyId) => {
 
 // remove user from the lobby
 
-const deletePlayerFromLobbyDB = async (player,lobbyId) => {
+const deletePlayerFromLobbyDB = async (playerId,lobbyId) => {
 
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+  const playerToDelete = lobby.players.filter((player)=> player.userId === playerId)[0];
+
   await updateDoc(lobbyRef,{
-    players:arrayRemove(player)
+    players:arrayRemove(playerToDelete)
   });
 }
+
+// delete a lobby
+const deleteLobbyFromDB = async (lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+  await deleteDoc(lobbyRef);
+}
+
+// get player count in a lobby
+const getPlayerCountFromDB = async(lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+  return lobby.players.length;
+}
+
+
 
 export {
     auth,
@@ -152,5 +172,7 @@ export {
     sendPasswordResetEmail,
     insertPlayerToLobbyDB,
     deletePlayerFromLobbyDB,
+    deleteLobbyFromDB,
+    getPlayerCountFromDB,
     logout,
 };

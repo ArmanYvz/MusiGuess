@@ -2,7 +2,7 @@ import React from "react";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import "./Lobby.css";
 import { useNavigate, useParams, useLocation } from "react-router";
-import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB } from "../../firebase";
+import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB } from "../../firebase";
 import { useEffect, useState } from "react";
 import { arrayUnion, collection, doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -43,22 +43,14 @@ const Lobby = () => {
       }
   },[]);
 
-  useEffect( async()=>{
-    const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
-    console.log("db update gidiyoo")
-    await updateDoc(lobbyDocRef, {
-        ...lobby
-    });
-      },[lobby]);
+  // useEffect( async()=>{
+  //   const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
+  //   console.log("db update gidiyoo")
+  //   await updateDoc(lobbyDocRef, {
+  //       ...lobby
+  //   });
+  // },[lobby]);
 
-
-  
-  const handleTest = () =>{
-        let lobbyCopy = lobby;
-        lobbyCopy.players[0].scores[0] = 152323;
-        setLobby({...lobbyCopy});
-      }
-    
 
   // declare the user ?? should user be a state?
   // const isStateExists = state ? true : false;
@@ -75,15 +67,14 @@ const Lobby = () => {
   //   remainingTimes: [],
   // });
 
-    let newPlayer = {
+  const [newPlayer,setNewPlayer] = useState({
     userId: localStorage.getItem("userId"),
     userName: localStorage.getItem("userName"),
     isHost: false,
     scores: [],
     answers: [],
     remainingTimes: [],
-  };
-
+  });
 
 
   // make the user host if he came from lobbies with create user button
@@ -92,41 +83,42 @@ const Lobby = () => {
       // setPlayer((prevUser) => {
       //   return { ...prevUser, isHost: true };
       // });
-      newPlayer.isHost = true;
+      setNewPlayer((prev)=>{
+        return {...prev, isHost: true};
+      })
     }
   }, []);
 
   // join lobby on page load, delete user when component unmounts
   useEffect(() => {
-    if (!isFetchingLobby && lobby) {
+    if (!isFetchingLobby) {
       console.log("adding user...");
-
-      // insertPlayerToLobbyDB(player, lobbyId);
-      setLobby({
-        ...lobby,
-        players: [...lobby.players, newPlayer] 
-      })
+      insertPlayerToLobbyDB(newPlayer, lobbyId);
 
       return () => {
         console.log("deleting user...");
-        // console.log(lobby.players.filter((player) => player.userId === localStorage.getItem("userId")))
-        console.log(lobby.players.filter((player) => player.userId === localStorage.getItem("userId")));
-        // const userToDelete = lobby.players.filter((player) => player.userId === localStorage.getItem("userId"));
-        
-        // deletePlayerFromLobbyDB(userToDelete, lobbyId);
-        // setLobby({
-        //   ...lobby,
-        //   players: "BRUH"
-        // })
+        // delete user  if there is nobody left in the lobby delete lobby
+        deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId)
+        .then(()=>{
+        getPlayerCountFromDB(lobbyId)
+        .then((playerCount)=>{
+            if(playerCount === 0){
+              console.log("nobody left! deleting the lobby...");
+              deleteLobbyFromDB(lobbyId);
+            }
+          }); 
+        })
       };
     }
   }, [isFetchingLobby]);
+
 
   // this removes user if user closes browser directly
   useEffect(() => {
     window.onbeforeunload = function () {
       console.log("deleting user...");
-      // deletePlayerFromLobbyDB(player, lobbyId);
+      deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId);
+      
     };
 
     return () => {
@@ -228,7 +220,6 @@ const Lobby = () => {
               <KeyboardBackspaceIcon fontSize="large" />
             </button>
             <h2>Lobby ID : {lobbyId}</h2>
-            <button onClick={handleTest}>TESTT</button>
           </div>
         </div>
       }
