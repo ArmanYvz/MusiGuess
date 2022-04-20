@@ -6,8 +6,13 @@ const SpotifyWebApi = require("spotify-web-api-node");
 const app = express();
 const port = 5000;
 
-const CLIENT_ID = "da832bc3b7fb4d8b96c49160dafefe93"
-const CLIENT_SECRET = "049916c253b04fcbb3946b9574a34452"
+const dotenv = require('dotenv');
+
+dotenv.config();
+console.log(`value is ${process.env.CLIENT_ID}`); // undefined
+
+const CLIENT_ID = process.env.CLIENT_ID
+const CLIENT_SECRET = process.env.CLIENT_SECRET
 
 const spotifyWebApi = new SpotifyWebApi({
     clientId: CLIENT_ID,
