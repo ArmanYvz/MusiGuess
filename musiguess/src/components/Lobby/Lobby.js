@@ -3,7 +3,7 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import "./Lobby.css";
 import { useNavigate, useParams, useLocation, usePrompt} from "react-router";
 
-import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB } from "../../firebase";
+import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB, updateGameSettingsDB} from "../../firebase";
 import { useEffect, useState } from "react";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -24,6 +24,8 @@ const Lobby = () => {
   const [lobby,setLobby] = useState();
 
   const {maxPlayers,players} = isFetchingLobby ? -1 : lobby;
+
+  const [currentPlayer,setCurrentPlayer] = useState();
 
   const [playlists,setPlaylists] = useState([]);
 
@@ -168,6 +170,23 @@ const Lobby = () => {
     );
   };
 
+  const currentPlayerHostCheck = () => {
+
+    const playerToCheck = lobby.players.filter((player)=> player.userId === localStorage.getItem("userId"))[0];
+    //console.log(playerToCheck);
+
+    try {
+      if (!isFetchingLobby) {
+        const hostStatus = playerToCheck.isHost;
+        return hostStatus;
+      }
+      
+    }
+    catch (err) {
+      console.log(err);
+    }
+
+  }
 
 
   return (
@@ -187,15 +206,15 @@ const Lobby = () => {
                 </div>
                 <div className="lobby__main__left__settings__bottom">
                   <div className="lobby__main__left__settings__bottom__left">
-                    <p>Playback Time</p>
+                    <p>Playback Time: {lobby.playbackTime}</p>
                     <div className="lobby__main__left__settings__bottom__left__box">
-                      <p>15 Seconds</p>
+                      <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, e.target.value)} type="range"  min="10" max="60" step="5" />
                     </div>
                   </div>
                   <div className="lobby__main__left__settings__bottom__right">
-                    <p>Number of Rounds</p>
+                    <p>Number of Rounds: {lobby.noRounds}</p>
                     <div className="lobby__main__left__settings__bottom__right__box">
-                      <p>3</p>
+                      <input value = {lobby.noRounds} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, e.target.value, lobby.playbackTime)} type="range"  min="1" max="10" step="1" />
                     </div>
                   </div>
                 </div>
@@ -218,6 +237,7 @@ const Lobby = () => {
           </div>
           <div className="lobby__footer">
             <button
+              disabled={!currentPlayerHostCheck()}
               onClick={handleStartGame}
               className="lobby__footer__button--yellow"
             >
