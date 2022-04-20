@@ -160,7 +160,7 @@ const makeAnotherPlayerHost = async(lobbyId) =>{
   //let playerToMakeHost = lobby.players[0];
 
   let playersCopy = lobby.players;
-  if(playersCopy.length != 0){
+  if(playersCopy.length !== 0){
 
     playersCopy[0].isHost = true;
 
@@ -171,6 +171,26 @@ const makeAnotherPlayerHost = async(lobbyId) =>{
   }
 
 }
+
+// update lobby game settings
+
+const updateGameSettingsDB = async(lobbyId, noRounds, playbackTime) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+
+  let lobbyCopy = lobby;
+
+  lobbyCopy.noRounds = noRounds;
+  lobbyCopy.playbackTime = playbackTime;
+
+  await updateDoc(lobbyRef,{
+    playbackTime: lobbyCopy.playbackTime,
+    noRounds: lobbyCopy.noRounds
+  });
+}
+
 
 // delete a lobby
 const deleteLobbyFromDB = async (lobbyId) => {
@@ -213,6 +233,7 @@ export {
     deletePlayerFromLobbyDB,
     deleteLobbyFromDB,
     getPlayerCountFromDB,
+    updateGameSettingsDB,
     getPlaylistsFromDB,
     logout,
 };
