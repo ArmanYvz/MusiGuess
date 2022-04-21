@@ -174,7 +174,7 @@ const makeAnotherPlayerHost = async(lobbyId) =>{
 
 // update lobby game settings
 
-const updateGameSettingsDB = async(lobbyId, noRounds, playbackTime) => {
+const updateGameSettingsDB = async(lobbyId, noRounds, playbackTime,playlistId) => {
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
   const lobbySnap = await getDoc(lobbyRef);
@@ -184,10 +184,12 @@ const updateGameSettingsDB = async(lobbyId, noRounds, playbackTime) => {
 
   lobbyCopy.noRounds = noRounds;
   lobbyCopy.playbackTime = playbackTime;
+  lobbyCopy.playlistId = playlistId;
 
   await updateDoc(lobbyRef,{
     playbackTime: lobbyCopy.playbackTime,
-    noRounds: lobbyCopy.noRounds
+    noRounds: lobbyCopy.noRounds,
+    playlistId: lobbyCopy.playlistId
   });
 }
 

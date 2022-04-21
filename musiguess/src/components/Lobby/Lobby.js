@@ -25,7 +25,9 @@ const Lobby = () => {
 
   const {maxPlayers,players} = isFetchingLobby ? -1 : lobby;
 
-  const [currentPlayer,setCurrentPlayer] = useState();
+  // const currentPlayer = isFetchingLobby ? null : lobby.players.filter((player)=>player.uid === localStorage.getItem("userId"))[0];
+
+  // const [currentPlayer,setCurrentPlayer] = useState();
 
   const [playlists,setPlaylists] = useState([]);
 
@@ -59,32 +61,59 @@ const Lobby = () => {
   //   });
   // },[lobby]);
 
-  const [newPlayer,setNewPlayer] = useState({
+  // const [newPlayer,setNewPlayer] = useState({
+  //   userId: localStorage.getItem("userId"),
+  //   userName: localStorage.getItem("userName"),
+  //   isHost: false,
+  //   scores: [],
+  //   answers: [],
+  //   remainingTimes: [],
+  // });
+
+  let newPlayer = {
     userId: localStorage.getItem("userId"),
     userName: localStorage.getItem("userName"),
     isHost: false,
     scores: [],
     answers: [],
     remainingTimes: [],
-  });
+  };
 
 
   // make the user host if he came from lobbies with create user button
+  // useEffect(() => {
+  //   if (state && state.isHost) {
+  //     // setPlayer((prevUser) => {
+  //     //   return { ...prevUser, isHost: true };
+  //     // });
+  //     setNewPlayer((prev)=>{
+  //       return {...prev, isHost: true};
+  //     })
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (state && state.isHost) {
-      // setPlayer((prevUser) => {
-      //   return { ...prevUser, isHost: true };
-      // });
-      setNewPlayer((prev)=>{
-        return {...prev, isHost: true};
-      })
-    }
-  }, []);
+      if(!isFetchingLobby){
+        // console.log(lobby.players.length)
+        if (lobby.players.length === 0) {
+          // console.log("bura çalıştı");
+          // setNewPlayer((prev)=>{
+          //   return {...prev, isHost: true};
+          // })
+          newPlayer.isHost = true;
+        }
+        else{
+          
+        }
+      }
+
+  }, [isFetchingLobby]);
 
   // join lobby on page load, delete user when component unmounts
   useEffect(() => {
     if (!isFetchingLobby) {
-      console.log("adding user...");
+      // console.log("adding user...");
+      // console.log(newPlayer);
       if(players.length +1 > maxPlayers){
         alert("Lobby is full");
         navigate("/lobbies", { replace: true });
@@ -117,18 +146,21 @@ const Lobby = () => {
     };
   }, []);
 
+
   useEffect(()=>{
-    console.log(playlists)
     const playlistsFromDB = getPlaylistsFromDB();
     playlistsFromDB.then(playlists => {
       setPlaylists(playlists);
     })
     // setPlaylists(playlistsFromDB);
-    console.log(playlists)
   },[])
 
+  const handleDropdownChange = (event) => {
+    const newPlaylistId = event.target.value;
+    // updateDB
+    updateGameSettingsDB(lobbyId,lobby.noRounds,lobby.playbackTime,newPlaylistId);
 
-
+  }
 
   const handleBackToLobby = () => {
     navigate("/lobbies", { replace: true });
@@ -140,13 +172,13 @@ const Lobby = () => {
 
   const PlaylistDropdown = () =>{
     return(
-      <select className="lobby__main__left__settings__top__box">
-      {playlists.length !== 0 ? playlists.map((playlist)=>{
-          return(
-            <option key = {playlist.playlistId}>{playlist.playlistName}</option>
-          )
-        }):  <option>No Playlists</option>}
-    </select>
+      <select disabled = {!currentPlayerHostCheck()} defaultValue={lobby.playlistId} id="playlistDropdown" onChange = {handleDropdownChange} className="lobby__main__left__settings__top__box">
+        {playlists.length !== 0 ? playlists.map((playlist)=>{
+            return(
+              <option key ={playlist.playlistId} value= {playlist.playlistId} >{playlist.playlistName}</option>
+            )
+          }):  <option>No Playlists</option>}
+      </select>
     )
   }
 
@@ -183,7 +215,7 @@ const Lobby = () => {
       
     }
     catch (err) {
-      console.log(err);
+      // console.log(err);
     }
 
   }
@@ -208,13 +240,13 @@ const Lobby = () => {
                   <div className="lobby__main__left__settings__bottom__left">
                     <p>Playback Time: {lobby.playbackTime}</p>
                     <div className="lobby__main__left__settings__bottom__left__box">
-                      <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, e.target.value)} type="range"  min="10" max="60" step="5" />
+                      <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, e.target.value,lobby.playlistId)} type="range"  min="10" max="60" step="5" />
                     </div>
                   </div>
                   <div className="lobby__main__left__settings__bottom__right">
                     <p>Number of Rounds: {lobby.noRounds}</p>
                     <div className="lobby__main__left__settings__bottom__right__box">
-                      <input value = {lobby.noRounds} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, e.target.value, lobby.playbackTime)} type="range"  min="1" max="10" step="1" />
+                      <input value = {lobby.noRounds} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, e.target.value, lobby.playbackTime,lobby.playlistId)} type="range"  min="1" max="10" step="1" />
                     </div>
                   </div>
                 </div>
@@ -249,7 +281,7 @@ const Lobby = () => {
             >
               <KeyboardBackspaceIcon fontSize="large" />
             </button>
-            <h2>Lobby ID : {lobbyId}</h2>
+            <h2>Lobby Id : {lobbyId}</h2>
           </div>
         </div>
       }

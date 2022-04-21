@@ -31,7 +31,7 @@ const Lobbies = () => {
     navigate("/home", { replace: true });
   };
 
-  // function generateLobbyID() {
+  // function generateLobbyId() {
   //   return Math.floor(100000000 + Math.random() * 900000000); 
   // }
 
@@ -42,7 +42,7 @@ const Lobbies = () => {
         currentRound: 0,
         isActive: true,
         isGameStarted: false,
-        lobbyID: lobbyId,
+        lobbyId: lobbyId,
         maxPlayers: newLobbyMaxPlayers,
         name: newLobbyName,
         noRounds: 5,
@@ -50,7 +50,7 @@ const Lobbies = () => {
         tracks: [],
         status: "Waiting",
         playbackTime: 15,
-        playlistID: "",
+        playlistId: "",
         roundEnded: "",
         wrongAnswers: [],
   
@@ -140,9 +140,9 @@ const Lobbies = () => {
                 //   return;}
 
                 return(
-                  <div key = {lobby.lobbyID} onClick = {()=> handleTableRowClick(lobby.players.length,lobby.maxPlayers,lobby.lobbyID)} className="lobbiesBody__table_body_row">
+                  <div key = {lobby.lobbyId} onClick = {()=> handleTableRowClick(lobby.players.length,lobby.maxPlayers,lobby.lobbyId)} className="lobbiesBody__table_body_row">
                     <p>{lobby.name}</p>
-                    <p>{lobby.lobbyID}</p>
+                    <p>{lobby.lobbyId}</p>
                     <p>{lobby.status}</p>
                     <p>{lobby.players.length}/{lobby.maxPlayers}</p>
                   </div>
