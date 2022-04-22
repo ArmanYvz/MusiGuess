@@ -1,7 +1,7 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"; 
+import { doc, setDoc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, getDocs, collection } from "firebase/firestore"; 
 
 import "firebase/compat/firestore";
 
@@ -134,14 +134,95 @@ const insertPlayerToLobbyDB = async (player,lobbyId) => {
 
 // remove user from the lobby
 
-const deletePlayerFromLobbyDB = async (player,lobbyId) => {
+const deletePlayerFromLobbyDB = async (playerId,lobbyId) => {
 
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+  const playerToDelete = lobby.players.filter((player)=> player.userId === playerId)[0];
+
   await updateDoc(lobbyRef,{
-    players:arrayRemove(player)
+    players:arrayRemove(playerToDelete)
+  });
+
+  if(playerToDelete.isHost){
+    await makeAnotherPlayerHost(lobbyId);
+  }
+
+}
+
+const makeAnotherPlayerHost = async(lobbyId) =>{
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+  //let playerToMakeHost = lobby.players[0];
+
+  let playersCopy = lobby.players;
+  if(playersCopy.length !== 0){
+
+    playersCopy[0].isHost = true;
+
+    await updateDoc(lobbyRef,{
+      players: [...playersCopy]
+    });
+
+  }
+
+}
+
+// update lobby game settings
+
+const updateGameSettingsDB = async(lobbyId, noRounds, playbackTime,playlistId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+
+  let lobbyCopy = lobby;
+
+  lobbyCopy.noRounds = noRounds;
+  lobbyCopy.playbackTime = playbackTime;
+  lobbyCopy.playlistId = playlistId;
+
+  await updateDoc(lobbyRef,{
+    playbackTime: lobbyCopy.playbackTime,
+    noRounds: lobbyCopy.noRounds,
+    playlistId: lobbyCopy.playlistId
   });
 }
+
+
+// delete a lobby
+const deleteLobbyFromDB = async (lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+  await deleteDoc(lobbyRef);
+}
+
+// get player count in a lobby
+const getPlayerCountFromDB = async(lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+  return lobby.players.length;
+}
+
+//get playlists
+
+const getPlaylistsFromDB = async() => {
+
+  const playlistsSnapshot = await getDocs(collection(db, "playlists"));
+
+  let playlists = [];
+
+  playlistsSnapshot.forEach((doc) => {
+    playlists.push(doc.data());
+  });
+
+  return playlists;
+}
+
 
 export {
     auth,
@@ -152,5 +233,9 @@ export {
     sendPasswordResetEmail,
     insertPlayerToLobbyDB,
     deletePlayerFromLobbyDB,
+    deleteLobbyFromDB,
+    getPlayerCountFromDB,
+    updateGameSettingsDB,
+    getPlaylistsFromDB,
     logout,
 };

@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import "./Lobby.css";
-import { useNavigate, useParams, useLocation } from "react-router";
-import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB } from "../../firebase";
+import { useNavigate, useParams, useLocation, usePrompt} from "react-router";
+
+import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB, updateGameSettingsDB} from "../../firebase";
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-import useLobby from "../../hooks/useLobby";
+// import useLobby from "../../hooks/useLobby";
+
 const Lobby = () => {
   const navigate = useNavigate();
   //get the loby id from url
@@ -16,51 +18,127 @@ const Lobby = () => {
   const { state } = useLocation();
 
   //a state to get the lobby data
-  const { isFetchingLobby, lobby } = useLobby({ lobbyId });
+  // const { isFetchingLobby, lobby, setLobby } = useLobby({ lobbyId });
 
+  const [isFetchingLobby,setIsFetchingLobby] = useState(true);
+  const [lobby,setLobby] = useState();
 
-  // declare the user ?? should user be a state?
-  // const isStateExists = state ? true : false;
-  // const isHostValue = isStateExists ? state.isHost : false
-  // let user = {userId: localStorage.getItem("userId"), userName: localStorage.getItem("userName"), isHost: isHostValue};
+  const {maxPlayers,players} = isFetchingLobby ? -1 : lobby;
 
-  // a state to store user info
-  const [player, setPlayer] = useState({
+  // const currentPlayer = isFetchingLobby ? null : lobby.players.filter((player)=>player.uid === localStorage.getItem("userId"))[0];
+
+  // const [currentPlayer,setCurrentPlayer] = useState();
+
+  const [playlists,setPlaylists] = useState([]);
+
+  useEffect(()=>{
+      const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
+
+      const unsubscribe = onSnapshot(lobbyDocRef, (doc) => {
+          if(doc.data()){
+              setLobby(doc.data());
+              setIsFetchingLobby(false);
+          }
+          else{
+              console.log("There is no lobby with this id");
+              alert("There is no lobby with this id");
+              navigate("/lobbies", { replace: true });
+          }
+
+      })
+
+      return () => {
+          unsubscribe();
+      }
+
+  },[]);
+
+  // useEffect( async()=>{
+  //   const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
+  //   console.log("db update gidiyoo")
+  //   await updateDoc(lobbyDocRef, {
+  //       ...lobby
+  //   });
+  // },[lobby]);
+
+  // const [newPlayer,setNewPlayer] = useState({
+  //   userId: localStorage.getItem("userId"),
+  //   userName: localStorage.getItem("userName"),
+  //   isHost: false,
+  //   scores: [],
+  //   answers: [],
+  //   remainingTimes: [],
+  // });
+
+  let newPlayer = {
     userId: localStorage.getItem("userId"),
     userName: localStorage.getItem("userName"),
     isHost: false,
     scores: [],
     answers: [],
     remainingTimes: [],
-  });
+  };
+
 
   // make the user host if he came from lobbies with create user button
+  // useEffect(() => {
+  //   if (state && state.isHost) {
+  //     // setPlayer((prevUser) => {
+  //     //   return { ...prevUser, isHost: true };
+  //     // });
+  //     setNewPlayer((prev)=>{
+  //       return {...prev, isHost: true};
+  //     })
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (state && state.isHost) {
-      setPlayer((prevUser) => {
-        return { ...prevUser, isHost: true };
-      });
-    }
-  }, []);
+      if(!isFetchingLobby){
+        // console.log(lobby.players.length)
+        if (lobby.players.length === 0) {
+          // console.log("bura çalıştı");
+          // setNewPlayer((prev)=>{
+          //   return {...prev, isHost: true};
+          // })
+          newPlayer.isHost = true;
+        }
+        else{
+          
+        }
+      }
+
+  }, [isFetchingLobby]);
 
   // join lobby on page load, delete user when component unmounts
   useEffect(() => {
-    if (!isFetchingLobby && lobby) {
-      console.log("adding user...");
-      insertPlayerToLobbyDB(player, lobbyId);
+    if (!isFetchingLobby) {
+      // console.log("adding user...");
+      // console.log(newPlayer);
+      if(players.length +1 > maxPlayers){
+        alert("Lobby is full");
+        navigate("/lobbies", { replace: true });
+      }
+      else{
+        insertPlayerToLobbyDB(newPlayer, lobbyId);
+      }
 
       return () => {
         console.log("deleting user...");
-        deletePlayerFromLobbyDB(player, lobbyId);
+        // delete user  if there is nobody left in the lobby delete lobby
+        deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId)
+
       };
     }
   }, [isFetchingLobby]);
+
+
+
 
   // this removes user if user closes browser directly
   useEffect(() => {
     window.onbeforeunload = function () {
       console.log("deleting user...");
-      deletePlayerFromLobbyDB(player, lobbyId);
+      deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId)
     };
 
     return () => {
@@ -69,6 +147,21 @@ const Lobby = () => {
   }, []);
 
 
+  useEffect(()=>{
+    const playlistsFromDB = getPlaylistsFromDB();
+    playlistsFromDB.then(playlists => {
+      setPlaylists(playlists);
+    })
+    // setPlaylists(playlistsFromDB);
+  },[])
+
+  const handleDropdownChange = (event) => {
+    const newPlaylistId = event.target.value;
+    // updateDB
+    updateGameSettingsDB(lobbyId,lobby.noRounds,lobby.playbackTime,newPlaylistId);
+
+  }
+
   const handleBackToLobby = () => {
     navigate("/lobbies", { replace: true });
   };
@@ -76,6 +169,18 @@ const Lobby = () => {
   const handleStartGame = () => {
     navigate("/game", { replace: true });
   };
+
+  const PlaylistDropdown = () =>{
+    return(
+      <select disabled = {!currentPlayerHostCheck()} defaultValue={lobby.playlistId} id="playlistDropdown" onChange = {handleDropdownChange} className="lobby__main__left__settings__top__box">
+        {playlists.length !== 0 ? playlists.map((playlist)=>{
+            return(
+              <option key ={playlist.playlistId} value= {playlist.playlistId} >{playlist.playlistName}</option>
+            )
+          }):  <option>No Playlists</option>}
+      </select>
+    )
+  }
 
   //lobby players render
   const LobbyPlayers = () => {
@@ -97,6 +202,25 @@ const Lobby = () => {
     );
   };
 
+  const currentPlayerHostCheck = () => {
+
+    const playerToCheck = lobby.players.filter((player)=> player.userId === localStorage.getItem("userId"))[0];
+    //console.log(playerToCheck);
+
+    try {
+      if (!isFetchingLobby) {
+        const hostStatus = playerToCheck.isHost;
+        return hostStatus;
+      }
+      
+    }
+    catch (err) {
+      // console.log(err);
+    }
+
+  }
+
+
   return (
     <>
       {isFetchingLobby ? 
@@ -109,21 +233,20 @@ const Lobby = () => {
               <div className="lobby__main__left__settings box">
                 <div className="lobby__main__left__settings__top">
                   <p>Playlist</p>
-                  <div className="lobby__main__left__settings__top__box">
-                    <p>Best of Metallica</p>
-                  </div>
+                  <PlaylistDropdown/>
+                  
                 </div>
                 <div className="lobby__main__left__settings__bottom">
                   <div className="lobby__main__left__settings__bottom__left">
-                    <p>Playback Time</p>
+                    <p>Playback Time: {lobby.playbackTime}</p>
                     <div className="lobby__main__left__settings__bottom__left__box">
-                      <p>15 Seconds</p>
+                      <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, e.target.value,lobby.playlistId)} type="range"  min="10" max="60" step="5" />
                     </div>
                   </div>
                   <div className="lobby__main__left__settings__bottom__right">
-                    <p>Number of Rounds</p>
+                    <p>Number of Rounds: {lobby.noRounds}</p>
                     <div className="lobby__main__left__settings__bottom__right__box">
-                      <p>3</p>
+                      <input value = {lobby.noRounds} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, e.target.value, lobby.playbackTime,lobby.playlistId)} type="range"  min="1" max="10" step="1" />
                     </div>
                   </div>
                 </div>
@@ -146,6 +269,7 @@ const Lobby = () => {
           </div>
           <div className="lobby__footer">
             <button
+              disabled={!currentPlayerHostCheck()}
               onClick={handleStartGame}
               className="lobby__footer__button--yellow"
             >
@@ -157,7 +281,7 @@ const Lobby = () => {
             >
               <KeyboardBackspaceIcon fontSize="large" />
             </button>
-            <h2>Lobby ID : {lobbyId}</h2>
+            <h2>Lobby Id : {lobbyId}</h2>
           </div>
         </div>
       }

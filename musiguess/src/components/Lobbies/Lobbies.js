@@ -31,19 +31,18 @@ const Lobbies = () => {
     navigate("/home", { replace: true });
   };
 
-  function generateLobbyID() {
-    return Math.floor(100000000 + Math.random() * 900000000); 
-  }
+  // function generateLobbyId() {
+  //   return Math.floor(100000000 + Math.random() * 900000000); 
+  // }
 
-  async function handlePopupCreateLobbyButton () {
-    let lobbyId = generateLobbyID();
-
+  function handlePopupCreateLobbyButton () {
+    let lobbyId = Math.floor(100000000 + Math.random() * 900000000); 
     try{
-      await setDoc(doc(db, "lobbies", `${lobbyId}`), {
+      setDoc(doc(db, "lobbies", `${lobbyId}`), {
         currentRound: 0,
         isActive: true,
         isGameStarted: false,
-        lobbyID: lobbyId,
+        lobbyId: lobbyId,
         maxPlayers: newLobbyMaxPlayers,
         name: newLobbyName,
         noRounds: 5,
@@ -51,7 +50,7 @@ const Lobbies = () => {
         tracks: [],
         status: "Waiting",
         playbackTime: 15,
-        playlistID: "",
+        playlistId: "",
         roundEnded: "",
         wrongAnswers: [],
   
@@ -65,7 +64,6 @@ const Lobbies = () => {
     // setNewLobbyName("");
     // setNewLobbyMaxPlayers(5);
     navigate(`/lobbies/${lobbyId}`,{state:{ isHost:true}});
-
   }
 
   const handleJoinExistingLobby = () => {
@@ -91,6 +89,15 @@ const Lobbies = () => {
     }
 
   }, []);
+
+  const handleTableRowClick = (playerLength,maxPlayers,lobbyId) =>{
+    if(playerLength < maxPlayers){
+      navigate(`/lobbies/${lobbyId}`);
+    }
+    else{
+      alert("This lobby is full");
+    }
+  }
 
   return (
     <>
@@ -129,10 +136,13 @@ const Lobbies = () => {
             </div>
             <div className="lobbiesBody__table__body">
               {lobbies.map((lobby) => {
+                // if(lobby.players.length === 0){
+                //   return;}
+
                 return(
-                  <div key = {lobby.lobbyID} onClick = {()=> navigate(`/lobbies/${lobby.lobbyID}`)} className="lobbiesBody__table_body_row">
+                  <div key = {lobby.lobbyId} onClick = {()=> handleTableRowClick(lobby.players.length,lobby.maxPlayers,lobby.lobbyId)} className="lobbiesBody__table_body_row">
                     <p>{lobby.name}</p>
-                    <p>{lobby.lobbyID}</p>
+                    <p>{lobby.lobbyId}</p>
                     <p>{lobby.status}</p>
                     <p>{lobby.players.length}/{lobby.maxPlayers}</p>
                   </div>
