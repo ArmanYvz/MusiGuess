@@ -167,8 +167,23 @@ const Lobby = () => {
   };
 
   const handleStartGame = () => {
-    navigate("/game", { replace: true });
+
+    getMusicDataFromServer();
+
+    //updateLobbyMusic()
+
+    //navigate("/game", { replace: true });
   };
+
+  const getMusicDataFromServer = async() => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/${lobby.playlistId}/${lobby.noRounds}`);
+      console.log(response.json());
+    }
+    catch(error) {
+      console.log(error);
+    }
+  } 
 
   const PlaylistDropdown = () =>{
     return(

@@ -193,6 +193,12 @@ const updateGameSettingsDB = async(lobbyId, noRounds, playbackTime,playlistId) =
   });
 }
 
+// update lobby musics
+
+const updateLobbyMusic = async() => {
+  
+}
+
 
 // delete a lobby
 const deleteLobbyFromDB = async (lobbyId) => {
