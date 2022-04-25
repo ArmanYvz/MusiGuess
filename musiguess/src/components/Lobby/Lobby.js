@@ -3,7 +3,7 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import "./Lobby.css";
 import { useNavigate, useParams, useLocation, usePrompt} from "react-router";
 
-import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB, updateGameSettingsDB} from "../../firebase";
+import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB, updateGameSettingsDB, updateLobbyMusicDB} from "../../firebase";
 import { useEffect, useState } from "react";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -195,10 +195,21 @@ const Lobby = () => {
   };
 
   const handleStartGame = () => {
+    getMusicDataFromServer().then(data => {
+      data.tracks.forEach(d => {
+        let trimmed = d.previewUrl.toString().split('view/');
+        d.previewUrl = trimmed[1].split('?cid=')[0];
+      })
 
-    getMusicDataFromServer();
-
-    //updateLobbyMusic()
+      const newArr = [];
+      while(data.wrongAnswers.length) {  
+        const arr = data.wrongAnswers.splice(0,3);
+        const obj = Object.assign({}, arr);
+        newArr.push(obj);
+      }
+      data.wrongAnswers = newArr;
+      updateLobbyMusicDB(lobbyId, data.tracks, data.wrongAnswers);
+    });
 
     //navigate("/game", { replace: true });
   };
@@ -206,12 +217,19 @@ const Lobby = () => {
   const getMusicDataFromServer = async() => {
     try {
       const response = await fetch(`https://musiguess.herokuapp.com/api/${lobby.playlistId}/${lobby.noRounds}`);
-      console.log(response.json());
+      //console.log(response.json());
+      let returnArr = [];
+      await response.json().then(data => {
+        //returnArr.playlistName = data.playlistName;
+        returnArr.tracks = data.tracks;
+        returnArr.wrongAnswers = data.wrongAnswers;
+      })
+      return returnArr;
     }
     catch(error) {
       console.log(error);
     }
-  } 
+  }
 
   const PlaylistDropdown = () =>{
     return(

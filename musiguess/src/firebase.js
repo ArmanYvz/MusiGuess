@@ -193,9 +193,14 @@ const updateGameSettingsDB = async(lobbyId, noRounds, playbackTime,playlistId) =
   });
 }
 
-// update lobby musics
+// update lobby musics and wrong answers
+const updateLobbyMusicDB = async(lobbyId, tracks, wrongAnswers) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
-const updateLobbyMusic = async() => {
+  await updateDoc(lobbyRef,{
+    tracks: tracks,
+    wrongAnswers: wrongAnswers
+  });
   
 }
 
@@ -242,6 +247,7 @@ export {
     deleteLobbyFromDB,
     getPlayerCountFromDB,
     updateGameSettingsDB,
+    updateLobbyMusicDB,
     getPlaylistsFromDB,
     logout,
 };
