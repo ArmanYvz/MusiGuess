@@ -92,22 +92,40 @@ const Lobby = () => {
   //   }
   // }, []);
 
-  useEffect(() => {
-      if(!isFetchingLobby){
-        // console.log(lobby.players.length)
-        if (lobby.players.length === 0) {
-          // console.log("bura çalıştı");
-          // setNewPlayer((prev)=>{
-          //   return {...prev, isHost: true};
-          // })
-          newPlayer.isHost = true;
-        }
-        else{
+  // useEffect(() => {
+  //     if(!isFetchingLobby){
+  //       // console.log(lobby.players.length)
+  //       if (lobby.players.length === 0) {
+  //         // console.log("bura çalıştı");
+  //         // setNewPlayer((prev)=>{
+  //         //   return {...prev, isHost: true};
+  //         // })
+  //         newPlayer.isHost = true;
+  //       }
+  //       else{
           
+  //       }
+  //     }
+
+  // }, [isFetchingLobby]);
+
+  useEffect(()=>{
+    if(!isFetchingLobby){
+      // console.log(lobby.players.length)
+      let nobodyIsHost = true;
+
+      lobby.players.forEach((player)=>{
+        if(player.isHost === true){
+          nobodyIsHost = false;
         }
+      })
+
+      if(nobodyIsHost){
+        newPlayer.isHost = true;
       }
 
-  }, [isFetchingLobby]);
+    }
+  },[isFetchingLobby])
 
   // join lobby on page load, delete user when component unmounts
   useEffect(() => {
