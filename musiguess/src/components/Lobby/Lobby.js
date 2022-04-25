@@ -155,13 +155,23 @@ const Lobby = () => {
   // this removes user if user closes browser directly
   useEffect(() => {
     window.onbeforeunload = function () {
-      console.log("deleting user...");
-      deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId)
-    };
+      // console.log("onbeforeonload girildi ");
+      // ev.preventDefault();
+      // return ev.returnValue = 'Are you sure you want to close?';
+      // console.log("ev: " + ev);
+      // console.log("deleting user...");
+      deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId);
+      // if(window.confirm("really want to exit?")){
+      //   deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId);
+      // }
+      // else {
+      // }
 
-    return () => {
+    };
+    return  () => {
       window.onbeforeunload = null;
     };
+    
   }, []);
 
 
@@ -195,7 +205,7 @@ const Lobby = () => {
 
   const getMusicDataFromServer = async() => {
     try {
-      const response = await fetch(`http://localhost:5000/api/${lobby.playlistId}/${lobby.noRounds}`);
+      const response = await fetch(`https://musiguess.herokuapp.com/api/${lobby.playlistId}/${lobby.noRounds}`);
       console.log(response.json());
     }
     catch(error) {
