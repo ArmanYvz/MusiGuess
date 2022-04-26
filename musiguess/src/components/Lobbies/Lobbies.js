@@ -39,7 +39,7 @@ const Lobbies = () => {
     let lobbyId = Math.floor(100000000 + Math.random() * 900000000); 
     try{
       setDoc(doc(db, "lobbies", `${lobbyId}`), {
-        currentRound: 0,
+        currentRound: 1,
         isActive: true,
         isGameStarted: false,
         lobbyId: lobbyId,
@@ -90,12 +90,17 @@ const Lobbies = () => {
 
   }, []);
 
-  const handleTableRowClick = (playerLength,maxPlayers,lobbyId) =>{
-    if(playerLength < maxPlayers){
+  const handleTableRowClick = (playerLength,maxPlayers,lobbyId,status) =>{
+    if((playerLength < maxPlayers) && (status === "Waiting")){
       navigate(`/lobbies/${lobbyId}`);
     }
     else{
-      alert("This lobby is full");
+      if(!(playerLength < maxPlayers)) {
+        alert("This lobby is full");
+      }
+      else if(!(status === "Waiting")) {
+        alert("This lobby is busy right now");
+      }
     }
   }
 
@@ -140,7 +145,7 @@ const Lobbies = () => {
                 //   return;}
 
                 return(
-                  <div key = {lobby.lobbyId} onClick = {()=> handleTableRowClick(lobby.players.length,lobby.maxPlayers,lobby.lobbyId)} className="lobbiesBody__table_body_row">
+                  <div key = {lobby.lobbyId} onClick = {()=> handleTableRowClick(lobby.players.length,lobby.maxPlayers,lobby.lobbyId,lobby.status)} className="lobbiesBody__table_body_row">
                     <p>{lobby.name}</p>
                     <p>{lobby.lobbyId}</p>
                     <p>{lobby.status}</p>

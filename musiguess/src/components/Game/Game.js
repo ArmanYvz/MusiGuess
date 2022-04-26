@@ -1,13 +1,111 @@
 import React from "react";
 import "./Game.css";
 import CloseIcon from "@mui/icons-material/Close";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
-const Game = () => {
+const Game = ({lobby}) => {
   const navigate = useNavigate();
+
   const handleExitGame = () => {
-    navigate("/lobby", { replace: true });
+    navigate("/lobbies", { replace: true });
   };
+
+  const QuestionAnswers = () =>{
+    const answers = [];
+
+    Object.keys(lobby.wrongAnswers[lobby.currentRound-1]).forEach((key)=>{
+      //console.log("key:" + key);
+      answers.push(lobby.wrongAnswers[lobby.currentRound-1][key])
+    })
+
+    answers.push(lobby.tracks[lobby.currentRound-1].trackName)
+
+    const shuffledAnswers = shuffle(answers);
+
+    //console.log(shuffledAnswers)
+
+    return(
+      shuffledAnswers.map((answer)=>{
+        return(
+        <div className="game__main__left__questionContainer__answers__answer">
+          <p className="noselect">{answer}</p>
+        </div>)
+      })
+    )
+    
+  }
+
+  // state to store audios of every round
+  const [audioArray,setAudioArray] = useState();
+
+  useEffect(()=>{
+    let i = 0;
+    const audioData = lobby.tracks.map((track)=>{
+      i++;
+      return {audio: new Audio("https://p.scdn.co/mp3-preview/" + lobby.tracks[i-1].previewUrl), isPlaying: false}
+    })
+
+    setAudioArray(audioData);
+  },[])
+
+
+  const playSound = (audioIdx) =>{
+    setAudioArray((arr) =>
+      arr.map((sound, i) => {
+        if (i === audioIdx) {
+          sound.audio.play();
+          return { ...sound, play: true };
+        }
+        sound.audio.pause();
+        return { ...sound, play: false };
+      })
+    );
+  }
+
+  const stopSound = (audioIdx) => {
+    setAudioArray((arr) =>
+      arr.map((sound, i) => {
+        if (i === audioIdx) {
+          sound.audio.pause();
+          return { ...sound, play: false };
+        }
+        return { ...sound, play: false };
+      })
+    );
+  };
+
+
+  const {roundEnded} = lobby;
+
+  useEffect(()=>{
+    console.log(audioArray);
+    if(roundEnded){
+      stopSound(lobby.currentRound-1);
+    }
+    else{
+      playSound(lobby.currentRound-1);
+    }
+
+  },[roundEnded])
+
+
+
+  // source: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+
+  while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
 
   return (
     <div className="game">
@@ -15,25 +113,11 @@ const Game = () => {
         <div className="game__main__left">
           <div className="game__main__left__questionContainer">
             <div className="game__main__left__questionContainer__question">
-              <p className="noselect"> Round 1 of 5</p>
+              <p className="noselect"> Round {lobby.currentRound} of {lobby.noRounds}</p>
               <h1 className="noselect">Guess the Song !</h1>
             </div>
             <div className="game__main__left__questionContainer__answers">
-              <div className="game__main__left__questionContainer__answers__answer">
-                <p className="noselect">Hotel California</p>
-              </div>
-
-              <div className="game__main__left__questionContainer__answers__answer">
-                <p className="noselect">Losing My Religion</p>
-              </div>
-
-              <div className="game__main__left__questionContainer__answers__answer">
-                <p className="noselect">Stairway to Heaven</p>
-              </div>
-
-              <div className="game__main__left__questionContainer__answers__answer">
-                <p className="noselect">Nothing Else Matters</p>
-              </div>
+              <QuestionAnswers/>
             </div>
           </div>
         </div>

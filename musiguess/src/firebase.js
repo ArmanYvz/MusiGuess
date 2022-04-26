@@ -204,6 +204,15 @@ const updateLobbyMusicDB = async(lobbyId, tracks, wrongAnswers) => {
   
 }
 
+const updateLobbyStatusDB = async(lobbyId, roundEnded, status) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  await updateDoc(lobbyRef,{
+    roundEnded: roundEnded,
+    status: status 
+  });
+}
+
 
 // delete a lobby
 const deleteLobbyFromDB = async (lobbyId) => {
@@ -248,6 +257,7 @@ export {
     getPlayerCountFromDB,
     updateGameSettingsDB,
     updateLobbyMusicDB,
+    updateLobbyStatusDB,
     getPlaylistsFromDB,
     logout,
 };
