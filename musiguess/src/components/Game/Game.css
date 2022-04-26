@@ -158,6 +158,29 @@
     background: rgba(3, 238, 105, 1);
 }
 
+.game__footer__right__buttonEndGame{
+    width: 190px;
+    height: 55px;
+    background: rgba(3, 238, 105, 0.6);
+    border: none;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 15px;
+  
+    color: black;
+
+}
+
+.game__footer__right__buttonEndGame:hover{
+    background: rgba(3, 238, 105, 1);
+}
+
 .game__footer{
     display: flex;
     justify-content: space-between;

@@ -1,41 +1,109 @@
 import React from "react";
 import "./Game.css";
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db, updatePlayerAnswer, updateLobbyStatusDB, checkIfPlayerAnswered } from "../../firebase";
 
-const Game = ({lobby}) => {
+const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   const navigate = useNavigate();
+
+  const[userSelectionDone, setUserSelectionDone] = useState(false);
+  //const[shuffledAnswers, setShuffledAnswers] = useState([]);
+  var shuffledAnswers = [];
+  const prevAnswers = useRef();
+  const selectionText = useRef();
 
   const handleExitGame = () => {
     navigate("/lobbies", { replace: true });
   };
 
+  const handleNextRound = () => {
+    console.log("next round click");
+    setUserSelectionDone(false);
+    updateLobbyStatusDB(lobbyId, false, lobby.status);
+  }
+
+  const handleEndGame = () => {
+    console.log("end game click");
+    // game end logic will be coded here
+  }
+
+  const handleAnswerClick = (text) => {
+    stopSound(lobby.currentRound-1);  // stop sound after we made a choice
+    selectionText.current = text; //store selection value in a variable because it somehow preempties during re-renders
+    updatePlayerAnswer(localStorage.getItem("userId"), lobbyId, text); //we can also insert remainingTime to here after implement
+    setUserSelectionDone(true);
+  }
+
   const QuestionAnswers = () =>{
     const answers = [];
 
     Object.keys(lobby.wrongAnswers[lobby.currentRound-1]).forEach((key)=>{
-      //console.log("key:" + key);
       answers.push(lobby.wrongAnswers[lobby.currentRound-1][key])
     })
 
     answers.push(lobby.tracks[lobby.currentRound-1].trackName)
 
-    const shuffledAnswers = shuffle(answers);
+    if (!userSelectionDone) {   // if we never made a selection, render answers as enabled so we can choose during round.
+      shuffledAnswers = shuffle(answers);
+      prevAnswers.current = shuffledAnswers;
+      return(
+        shuffledAnswers.map((answer)=>{
+          return(
+          <div className="game__main__left__questionContainer__answers__answer">
+            <p className="noselect" disabled={false} onClick={(e) => handleAnswerClick(e.target.innerText)}>{answer}</p>
+          </div>)
+        })
+      )
+    }
+    else {    // else it means we already made a selection, so render answers as disabled
+      return(
+        prevAnswers.current.map((answer)=>{
+          if (answer === selectionText.current) {   //if answer was our latest selection, render it as yellow background
+            return(
+              <div style={{backgroundColor: "yellow"}} className="game__main__left__questionContainer__answers__answer">
+                <p className="noselect" disabled={true}>{answer}</p>
+              </div>)
+          }
+          else {    // else it isn't our selection, so render it normally
+            return(
+              <div className="game__main__left__questionContainer__answers__answer">
+                <p className="noselect" disabled={true}>{answer}</p>
+              </div>)
+          }
+          
+        })
+      )
+    }
+    
+    
+  }
 
-    //console.log(shuffledAnswers)
-
+  const RoundScores = () => {
     return(
-      shuffledAnswers.map((answer)=>{
+      lobby.players.map((player) => {
         return(
-        <div className="game__main__left__questionContainer__answers__answer">
-          <p className="noselect">{answer}</p>
-        </div>)
+          <div className="game__main__right__leaderboardContainer__table__row">
+            <p>{player.userName} {lobby.playbackTime-player.remainingTime[lobby.currentRound-1]} sec</p>
+            <p>+{player.scores[lobby.currentRound-1]}</p> 
+          </div>
+        )
       })
     )
-    
+  }
+
+  const OverallScores = () => {
+    return(
+      lobby.players.map((player) => {
+        return(
+          <div className="game__main__right__leaderboardContainer__table__row">
+            <p>+{player.totalScore}</p> 
+          </div>
+        )
+      })
+    )
   }
 
   // state to store audios of every round
@@ -182,9 +250,17 @@ function shuffle(array) {
           >
             <CloseIcon />
           </button>
-          <button className="game__footer__right__buttonNextRound">
-            Next Round
-          </button>
+          { lobby.currentRound == lobby.noRounds ?
+            <button className="game__footer__right__buttonEndGame" disabled={!currentPlayerHostCheck} onClick={() => handleEndGame}>
+              End Game
+            </button>
+            :
+            <button className="game__footer__right__buttonNextRound" disabled={!currentPlayerHostCheck} onClick={() => handleNextRound}>
+              Next Round
+            </button>
+            
+          } 
+          
         </div>
       </div>
     </div>

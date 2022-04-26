@@ -354,7 +354,11 @@ const Lobby = () => {
           }
 
           { lobby.status === "In Game" &&
-            <Game lobby = {lobby}/>
+            <Game 
+            lobby = {lobby} 
+            currentPlayerHostCheck = {currentPlayerHostCheck}
+            lobbyId = {lobbyId}
+            />
           }
         </>
         
