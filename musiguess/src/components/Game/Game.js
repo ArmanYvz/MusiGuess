@@ -4,16 +4,41 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { db, updatePlayerAnswer, updateLobbyStatusDB, checkIfPlayerAnswered } from "../../firebase";
+import { db, updatePlayerRoundData, updateLobbyStatusDB, checkIfPlayerAnswered } from "../../firebase";
+import Timer from "../Timer/Timer";
 
 const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   const navigate = useNavigate();
+  var time;
+
+  const[isTimerActive, setIsTimerActive] = useState(false);
 
   const[userSelectionDone, setUserSelectionDone] = useState(false);
+  //const[roundStarts,setRoundStarts] = useState(false);
   //const[shuffledAnswers, setShuffledAnswers] = useState([]);
   var shuffledAnswers = [];
   const prevAnswers = useRef();
+  const didRoundStart = useRef();
   const selectionText = useRef();
+
+  useEffect(()=>{
+    didRoundStart.current = false;
+    setIsTimerActive(true);
+    const answers = [];
+      
+    Object.keys(lobby.wrongAnswers[lobby.currentRound-1]).forEach((key)=>{
+      answers.push(lobby.wrongAnswers[lobby.currentRound-1][key])
+    })
+
+    answers.push(lobby.tracks[lobby.currentRound-1].trackName)
+    if(!didRoundStart.current) {
+      console.log("burdayim");
+      shuffledAnswers = shuffle(answers);
+      prevAnswers.current = shuffledAnswers;  // save those answers in a variable - we'll need them after component re-renders
+    }
+    didRoundStart.current = true;
+    console.log(didRoundStart.current);
+  },[])
 
   const handleExitGame = () => {
     navigate("/lobbies", { replace: true });
@@ -30,33 +55,69 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
     // game end logic will be coded here
   }
 
-  const handleAnswerClick = (text) => {
-    stopSound(lobby.currentRound-1);  // stop sound after we made a choice
-    selectionText.current = text; //store selection value in a variable because it somehow preempties during re-renders
-    updatePlayerAnswer(localStorage.getItem("userId"), lobbyId, text); //we can also insert remainingTime to here after implement
-    setUserSelectionDone(true);
+  const calculateScore = (remainingTime, answerText) => {
+    let score;
+    if(answerText === lobby.tracks[lobby.currentRound-1].trackName) {   // true selection, score multiplied by remaining time
+      score = (100 * (remainingTime/lobby.playbackTime))
+    }
+    else {    // false selection
+      score = 0;
+    }
+    return score;
   }
 
-  const QuestionAnswers = () =>{
-    const answers = [];
+  const pull_data = (data) => {
+    time = data;
+    //console.log(time);
+    if(data < 0.01) {   // it means round ended and we still didn't make a selection
+      stopSound(lobby.currentRound-1);
+      setIsTimerActive(false);
+      updatePlayerRoundData(localStorage.getItem("userId"), lobbyId, "NaN", 0, 0);
+    }
+  }
 
-    Object.keys(lobby.wrongAnswers[lobby.currentRound-1]).forEach((key)=>{
-      answers.push(lobby.wrongAnswers[lobby.currentRound-1][key])
-    })
 
-    answers.push(lobby.tracks[lobby.currentRound-1].trackName)
+  const handleAnswerClick = (text) => {
+    setIsTimerActive(false);
+    setUserSelectionDone(true);
+    stopSound(lobby.currentRound-1);  // stop sound after we made a choice
+    selectionText.current = text; //store selection value in a variable because it somehow preempties during re-renders
+    let s = calculateScore(time, text);
+    updatePlayerRoundData(localStorage.getItem("userId"), lobbyId, text, s, time);
+  }
 
-    if (!userSelectionDone) {   // if we never made a selection, render answers as enabled so we can choose during round.
-      shuffledAnswers = shuffle(answers);
-      prevAnswers.current = shuffledAnswers;
-      return(
-        shuffledAnswers.map((answer)=>{
+  const QuestionAnswers = React.memo(() =>{
+    //console.log(shuffledAnswers);
+    if (!userSelectionDone) {   // if we never made a selection, render answers as enabled so we can choose during round
+      if (shuffledAnswers.length > 0) {
+        return(
+          shuffledAnswers.map((answer)=>{
+            return(
+            <div className="game__main__left__questionContainer__answers__answer">
+              <p className="noselect" disabled={false} onClick={(e) => handleAnswerClick(e.target.innerText)}>{answer}</p>
+            </div>)
+          })
+        )
+      }
+      else {
+        if (didRoundStart.current) {
           return(
-          <div className="game__main__left__questionContainer__answers__answer">
-            <p className="noselect" disabled={false} onClick={(e) => handleAnswerClick(e.target.innerText)}>{answer}</p>
-          </div>)
-        })
-      )
+            prevAnswers.current.map((answer)=>{
+              return(
+              <div className="game__main__left__questionContainer__answers__answer">
+                <p className="noselect" disabled={false} onClick={(e) => handleAnswerClick(e.target.innerText)}>{answer}</p>
+              </div>)
+            })
+          )
+        }
+        else {
+          return(
+            <p className="noselect">loading...</p>
+          )
+        }
+        
+      }
+      
     }
     else {    // else it means we already made a selection, so render answers as disabled
       return(
@@ -79,7 +140,7 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
     }
     
     
-  }
+  })
 
   const RoundScores = () => {
     return(
@@ -244,6 +305,11 @@ function shuffle(array) {
           </div>
         </div>
         <div className="game__footer__right">
+          { isTimerActive &&
+            <Timer pullTime={pull_data}
+                  playbackTime={lobby.playbackTime}
+            /> 
+          }
           <button
             onClick={handleExitGame}
             className="game__footer__right__exitButton"

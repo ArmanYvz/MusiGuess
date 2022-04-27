@@ -213,7 +213,7 @@ const updateLobbyStatusDB = async(lobbyId, roundEnded, status) => {
   });
 }
 
-const updatePlayerAnswer = async(playerId, lobbyId, value) => {
+const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingTime) => {
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
   const lobbySnap = await getDoc(lobbyRef);
@@ -224,7 +224,9 @@ const updatePlayerAnswer = async(playerId, lobbyId, value) => {
   playersCopy.forEach((player) => {
     if (player.userId === playerId) {
       player.selectionDone = true;
-      player.answers = [...player.answers, value];
+      player.scores = [...player.scores, score];
+      player.remainingTimes = [...player.remainingTimes, remainingTime];
+      player.answers = [...player.answers, answer];
     }
   })
 
@@ -232,6 +234,21 @@ const updatePlayerAnswer = async(playerId, lobbyId, value) => {
     players: [...playersCopy]
   });
 }
+
+// const checkIfAllPlayersAnswered = async(lobbyId) => {
+//   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+//   const lobbySnap = await getDoc(lobbyRef);
+//   const lobby =  lobbySnap.data();
+
+//   let playersCopy = lobby.players;
+
+//   playersCopy.forEach((player) => {
+//     if (player.selectionDone) {
+//       return true;
+//     }
+//   })
+// }
 
 const checkIfPlayerAnswered = async(playerId, lobbyId) => {
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
@@ -295,7 +312,7 @@ export {
     updateGameSettingsDB,
     updateLobbyMusicDB,
     updateLobbyStatusDB,
-    updatePlayerAnswer,
+    updatePlayerRoundData,
     checkIfPlayerAnswered,
     getPlaylistsFromDB,
     logout,
