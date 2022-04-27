@@ -4,12 +4,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { db, updatePlayerRoundData, updateLobbyStatusDB, checkIfPlayerAnswered } from "../../firebase";
+import { db, updatePlayerRoundData, updateLobbyStatusDB, checkIfPlayerAnswered, checkIfAllPlayersAnswered } from "../../firebase";
 import Timer from "../Timer/Timer";
 
 const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   const navigate = useNavigate();
-  var time;
+  var time = 0;
 
   const[isTimerActive, setIsTimerActive] = useState(false);
 
@@ -32,13 +32,13 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
 
     answers.push(lobby.tracks[lobby.currentRound-1].trackName)
     if(!didRoundStart.current) {
-      console.log("burdayim");
+      //console.log("burdayim");
       shuffledAnswers = shuffle(answers);
       prevAnswers.current = shuffledAnswers;  // save those answers in a variable - we'll need them after component re-renders
     }
     didRoundStart.current = true;
     console.log(didRoundStart.current);
-  },[])
+  },[lobby.currentRound])
 
   const handleExitGame = () => {
     navigate("/lobbies", { replace: true });
@@ -47,7 +47,7 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   const handleNextRound = () => {
     console.log("next round click");
     setUserSelectionDone(false);
-    updateLobbyStatusDB(lobbyId, false, lobby.status);
+    updateLobbyStatusDB(lobbyId, false, lobby.currentRound+1, lobby.status);
   }
 
   const handleEndGame = () => {
@@ -67,9 +67,9 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   }
 
   const pull_data = (data) => {
-    time = data;
+    time = (Math.round(data * 100)/100).toFixed(2);
     //console.log(time);
-    if(data < 0.01) {   // it means round ended and we still didn't make a selection
+    if(time < 0.01) {   // it means round ended and we still didn't make a selection
       stopSound(lobby.currentRound-1);
       setIsTimerActive(false);
       updatePlayerRoundData(localStorage.getItem("userId"), lobbyId, "NaN", 0, 0);
@@ -77,13 +77,16 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   }
 
 
-  const handleAnswerClick = (text) => {
+  const handleAnswerClick = async(text) => {
     setIsTimerActive(false);
     setUserSelectionDone(true);
     stopSound(lobby.currentRound-1);  // stop sound after we made a choice
     selectionText.current = text; //store selection value in a variable because it somehow preempties during re-renders
     let s = calculateScore(time, text);
-    updatePlayerRoundData(localStorage.getItem("userId"), lobbyId, text, s, time);
+    let resp = await updatePlayerRoundData(localStorage.getItem("userId"), lobbyId, text, s, time);
+    if (resp) {
+      updateLobbyStatusDB(lobbyId, true, lobby.currentRound, lobby.status);
+    }
   }
 
   const QuestionAnswers = React.memo(() =>{
@@ -147,8 +150,8 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
       lobby.players.map((player) => {
         return(
           <div className="game__main__right__leaderboardContainer__table__row">
-            <p>{player.userName} {lobby.playbackTime-player.remainingTime[lobby.currentRound-1]} sec</p>
-            <p>+{player.scores[lobby.currentRound-1]}</p> 
+            <p>{player.userName} (+{((lobby.playbackTime)-(Math.round(player.remainingTimes[lobby.currentRound-1] * 100)/100).toFixed(2)).toFixed(2)} sec)</p>
+            <p>+{(Math.round(player.scores[lobby.currentRound-1] * 100)/100).toFixed(2)}</p> 
           </div>
         )
       })
@@ -160,7 +163,8 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
       lobby.players.map((player) => {
         return(
           <div className="game__main__right__leaderboardContainer__table__row">
-            <p>+{player.totalScore}</p> 
+            <p>{player.userName}</p>
+            <p>{(Math.round(player.totalScore * 100)/100).toFixed(2)}</p> 
           </div>
         )
       })
@@ -210,7 +214,7 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   const {roundEnded} = lobby;
 
   useEffect(()=>{
-    console.log(audioArray);
+    //console.log(audioArray);
     if(roundEnded){
       stopSound(lobby.currentRound-1);
     }
@@ -255,43 +259,15 @@ function shuffle(array) {
             <div className="game__main__right__leaderboardContainer__roundScores">
               <p>Scores</p>
               <div className="game__main__right__leaderboardContainer__roundScores__table">
-                <div className="game__main__right__leaderboardContainer__table__row">
-                  <p>Berat (3.5 sec)</p>
-                  <p>+200</p>
-                </div>
-                <div className="game__main__right__leaderboardContainer__table__row">
-                  <p>Serdar (4.2 sec)</p>
-                  <p>+150</p>
-                </div>
-                <div className="game__main__right__leaderboardContainer__table__row">
-                  <p>Anıl (5.1 sec)</p>
-                  <p>+100</p>
-                </div>
-                <div className="game__main__right__leaderboardContainer__table__row">
-                  <p>Arman (6.1 sec)</p>
-                  <p>+90</p>
-                </div>
-                <div className="game__main__right__leaderboardContainer__table__row">
-                  <p>Anıl (5.1 sec)</p>
-                  <p>+100</p>
-                </div>
+                { lobby.roundEnded &&
+                  <RoundScores/>
+                }
               </div>
             </div>
             <div className="game__main__right__leaderboardContainer__overallScores">
               <p>Overall</p>
               <div className="game__main__right__leaderboardContainer__overallScores__table">
-                <div className="game__main__right__leaderboardContainer__table__row">
-                  <p>Serdar</p>
-                  <p>660</p>
-                </div>
-                <div className="game__main__right__leaderboardContainer__table__row">
-                  <p>Anıl</p>
-                  <p>500</p>
-                </div>
-                <div className="game__main__right__leaderboardContainer__table__row">
-                  <p>Berat</p>
-                  <p>300</p>
-                </div>
+                <OverallScores/>
               </div>
             </div>
           </div>
@@ -316,14 +292,17 @@ function shuffle(array) {
           >
             <CloseIcon />
           </button>
-          { lobby.currentRound == lobby.noRounds ?
-            <button className="game__footer__right__buttonEndGame" disabled={!currentPlayerHostCheck} onClick={() => handleEndGame}>
+          { lobby.currentRound !== lobby.noRounds && lobby.roundEnded ?
+            <button className="game__footer__right__buttonNextRound" disabled={!currentPlayerHostCheck()} onClick={() => handleNextRound()}>
+              Next Round
+            </button>
+            :
+            lobby.roundEnded ?
+            <button className="game__footer__right__buttonEndGame" disabled={!currentPlayerHostCheck()} onClick={() => handleEndGame()}>
               End Game
             </button>
             :
-            <button className="game__footer__right__buttonNextRound" disabled={!currentPlayerHostCheck} onClick={() => handleNextRound}>
-              Next Round
-            </button>
+            <p>aaa</p>
             
           } 
           

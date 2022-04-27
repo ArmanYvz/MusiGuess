@@ -79,6 +79,7 @@ const Lobby = () => {
     isHost: false,
     scores: [],
     answers: [],
+    totalScore: 0,
     remainingTimes: [],
   };
 
@@ -209,7 +210,7 @@ const Lobby = () => {
         }
         data.wrongAnswers = newArr;
         updateLobbyMusicDB(lobbyId, data.tracks, data.wrongAnswers);
-        updateLobbyStatusDB(lobbyId, false, "In Game");
+        updateLobbyStatusDB(lobbyId, false, 1, "In Game");
       });
     } catch(err) {
       alert(err);
@@ -274,6 +275,7 @@ const Lobby = () => {
 
     try {
       if (!isFetchingLobby) {
+        //console.log("buradayim");
         const hostStatus = playerToCheck.isHost;
         return hostStatus;
       }
@@ -307,13 +309,13 @@ const Lobby = () => {
                       <div className="lobby__main__left__settings__bottom__left">
                         <p>Playback Time: {lobby.playbackTime}</p>
                         <div className="lobby__main__left__settings__bottom__left__box">
-                          <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, e.target.value,lobby.playlistId)} type="range"  min="10" max="60" step="5" />
+                          <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, parseInt(e.target.value),lobby.playlistId)} type="range"  min="10" max="60" step="5" />
                         </div>
                       </div>
                       <div className="lobby__main__left__settings__bottom__right">
                         <p>Number of Rounds: {lobby.noRounds}</p>
                         <div className="lobby__main__left__settings__bottom__right__box">
-                          <input value = {lobby.noRounds} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, e.target.value, lobby.playbackTime,lobby.playlistId)} type="range"  min="1" max="10" step="1" />
+                          <input value = {lobby.noRounds} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, parseInt(e.target.value), lobby.playbackTime,lobby.playlistId)} type="range"  min="1" max="10" step="1" />
                         </div>
                       </div>
                     </div>

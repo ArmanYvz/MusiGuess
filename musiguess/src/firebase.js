@@ -204,26 +204,28 @@ const updateLobbyMusicDB = async(lobbyId, tracks, wrongAnswers) => {
   
 }
 
-const updateLobbyStatusDB = async(lobbyId, roundEnded, status) => {
+const updateLobbyStatusDB = async(lobbyId, roundEnded, currentRound, status) => {
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
   await updateDoc(lobbyRef,{
     roundEnded: roundEnded,
+    currentRound: currentRound,
     status: status 
   });
 }
 
 const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingTime) => {
-  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+  let lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
-  const lobbySnap = await getDoc(lobbyRef);
-  const lobby =  lobbySnap.data();
+  let lobbySnap = await getDoc(lobbyRef);
+  let lobby =  lobbySnap.data();
 
   let playersCopy = lobby.players;
 
   playersCopy.forEach((player) => {
     if (player.userId === playerId) {
       player.selectionDone = true;
+      player.totalScore = player.totalScore + score;
       player.scores = [...player.scores, score];
       player.remainingTimes = [...player.remainingTimes, remainingTime];
       player.answers = [...player.answers, answer];
@@ -233,22 +235,37 @@ const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingT
   await updateDoc(lobbyRef,{
     players: [...playersCopy]
   });
+
+  lobbySnap = await getDoc(lobbyRef);
+  lobby =  lobbySnap.data();
+
+  playersCopy = lobby.players;
+
+  playersCopy.forEach((player) => {
+    if (!player.selectionDone) {
+      return false;
+    }
+  })
+  return true;
+
 }
 
-// const checkIfAllPlayersAnswered = async(lobbyId) => {
-//   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+const checkIfAllPlayersAnswered = async(lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
 
-//   const lobbySnap = await getDoc(lobbyRef);
-//   const lobby =  lobbySnap.data();
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
 
-//   let playersCopy = lobby.players;
+  let playersCopy = lobby.players;
 
-//   playersCopy.forEach((player) => {
-//     if (player.selectionDone) {
-//       return true;
-//     }
-//   })
-// }
+  playersCopy.forEach((player) => {
+    
+    // if (player.selectionDone) {
+    //   return true;
+    // }
+    console.log(player);
+  })
+}
 
 const checkIfPlayerAnswered = async(playerId, lobbyId) => {
   const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
@@ -313,6 +330,7 @@ export {
     updateLobbyMusicDB,
     updateLobbyStatusDB,
     updatePlayerRoundData,
+    checkIfAllPlayersAnswered,
     checkIfPlayerAnswered,
     getPlaylistsFromDB,
     logout,

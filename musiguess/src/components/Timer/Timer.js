@@ -10,7 +10,7 @@ const Timer = ({pullTime, playbackTime}) => {
         let interval;
         setTime(playbackTime);
         interval = setInterval(() => {
-            setTime(x => x - 0.1);
+            setTime((x => x - 0.1));
         }, 100)
 
         return () => {
@@ -20,7 +20,7 @@ const Timer = ({pullTime, playbackTime}) => {
 
     return(
         <>
-        <button type="button" id = "timeButton" disabled >Time: {time} </button>
+        <button type="button" id = "timeButton" disabled >Time: {(Math.round(time * 100)/100).toFixed(2)} </button>
         </>
     )
 }
