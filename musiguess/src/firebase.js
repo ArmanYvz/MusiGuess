@@ -33,6 +33,7 @@ const signInWithGoogle = async() => {
           await db.collection("users").add({
               uid: user.uid,
               name: user.displayName,
+              gameHistory: [],
               authProvider: "google",
               email: user.email,
           });
@@ -81,6 +82,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       const user = res.user;
       await db.collection("users").add({
         uid: user.uid,
+        gameHistory: [],
         name,
         authProvider: "local",
         email,
@@ -214,6 +216,25 @@ const updateLobbyStatusDB = async(lobbyId, roundEnded, currentRound, status) => 
   });
 
   await prepareAllPlayersToNextRound(lobbyId);
+}
+
+const updateGameHistoryOfPlayer = async(playerId, tracks, answers, scores, remainingTimes) => {
+  const userRef = doc(db, "users", `${playerId}`);
+
+  let userSnap = await getDoc(userRef);
+  let user =  userSnap.data();
+  console.log(user);
+  if (user !== undefined) {
+    let gameHistoryCopy = user.gameHistory;
+    let newGame = {};
+    newGame.tracks = tracks;
+    newGame.answers = answers;
+    newGame.scores = scores;
+    newGame.remainingTimes = remainingTimes;
+    await updateDoc(userRef, {
+      gameHistory: [...gameHistoryCopy, newGame]
+    })
+  }
 }
 
 const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingTime) => {
@@ -356,6 +377,7 @@ export {
     updatePlayerRoundData,
     checkIfAllPlayersAnswered,
     checkIfPlayerAnswered,
+    updateGameHistoryOfPlayer,
     getPlaylistsFromDB,
     logout,
 };

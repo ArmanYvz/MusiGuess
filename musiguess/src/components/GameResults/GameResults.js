@@ -32,7 +32,7 @@ const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
                     <div className="gameResults__main__leftTable__rowContainer__row">
                         <p>{count}</p>
                         <p>{player.userName}</p>
-                        <p>{player.totalScore}</p>
+                        <p>{Math.round((player.totalScore * 100)/100).toFixed(0)}</p>
                         <p>{calculateRatio(player)}%</p>
                         <p>{calculateAvgAnswerTime(player)} sec</p>
                     </div>
@@ -48,7 +48,7 @@ const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
                 count++;
                 return (
                     <div className="gameResults__main__rightTable__rowContainer__row">
-                        <p>{count-1}</p>
+                        <p>{count}</p>
                         <p>{track.trackName}</p>
                         <p>{track.trackArtist}</p>
                     </div>

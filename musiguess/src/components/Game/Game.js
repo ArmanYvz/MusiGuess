@@ -4,7 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { db, updatePlayerRoundData, updateLobbyStatusDB, checkIfPlayerAnswered, checkIfAllPlayersAnswered } from "../../firebase";
+import { db, updatePlayerRoundData, updateLobbyStatusDB, updateGameHistoryOfPlayer, checkIfPlayerAnswered, checkIfAllPlayersAnswered } from "../../firebase";
 import Timer from "../Timer/Timer";
 
 const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
@@ -41,6 +41,16 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
     console.log(didRoundStart.current);
   },[lobby.currentRound])
 
+  /*useEffect(() => {
+    window.onbeforeunload = function () {
+      stopSound(lobby.currentRound-1);
+    };
+    return () => {
+      window.onbeforeunload = null;
+    };
+    
+  }, []);*/
+
   const handleExitGame = () => {
     navigate("/lobbies", { replace: true });
   };
@@ -51,10 +61,13 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
     updateLobbyStatusDB(lobbyId, false, lobby.currentRound+1, lobby.status);
   }
 
-  const handleEndGame = () => {
+  const handleEndGame = async() => {
     console.log("end game click");
+    console.log(lobby.tracks);
+    await lobby.players.forEach((player) => {
+      updateGameHistoryOfPlayer(player.userId, lobby.tracks, player.answers, player.scores, player.remainingTimes);
+    })
     updateLobbyStatusDB(lobbyId, false, lobby.currentRound, "Game End");
-    // game end logic will be coded here
   }
 
   const calculateScore = (remainingTime, answerText) => {
