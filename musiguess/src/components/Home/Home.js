@@ -12,6 +12,11 @@ const Home = () => {
     navigate("/lobbies", { replace: true });
   };
 
+  const gameHistoryButtonHandle = () => {
+    //todo navigate to gamehistory
+    navigate("/gamehistory", { replace: true });
+  }
+
   return (
     <div className="home">
       <div className="header">
@@ -20,13 +25,13 @@ const Home = () => {
           <p className="header__left__bottomText noselect">Guess</p>
         </div>
         <div className="header__right">
-          <Link to="/" className="header__right__link">
-            CONTACT
-          </Link>
-          <hr />
           <h1 to="/" className="header__right__link noselect">
-            WELCOME <span>{localStorage.getItem("userName") ? localStorage.getItem("userName").toUpperCase(): "local storage bruhladı"}</span> !
+            WELCOME <span>{localStorage.getItem("userName") ? localStorage.getItem("userName").toUpperCase(): localStorage.getItem("userName")}</span> !
           </h1>
+          <hr />
+          <Link to="/" onClick={logout} className="header__right__link">
+            LOGOUT
+          </Link>
         </div>
       </div>
       <div className="main">
@@ -41,7 +46,7 @@ const Home = () => {
           <h2>Multiplayer, turn based music guessing game.</h2>
           <div className="main__left_buttonContainer">
             <button onClick={playButtonHandle}>Play Now</button>
-            <button id="showGameHistoryBtn">Show Game History</button>
+            <button id="showGameHistoryBtn" onClick={gameHistoryButtonHandle}>Show Game History</button>
           </div>
         </div>
         <div className="main__right">

@@ -9,7 +9,6 @@ import { db } from "../../firebase";
 
 import CreateLobbyPopup from "../CreateLobbyPopup/CreateLobbyPopup";
 
-//import { doc, setDoc, collection, query, where, getDocs, getDoc, onSnapshot, deleteDoc } from "firebase/firestore"; 
 import { doc, collection, query, onSnapshot, setDoc } from "firebase/firestore"; 
 
 const Lobbies = () => {
@@ -30,10 +29,6 @@ const Lobbies = () => {
   const handleBackHomeButton = () => {
     navigate("/home", { replace: true });
   };
-
-  // function generateLobbyId() {
-  //   return Math.floor(100000000 + Math.random() * 900000000); 
-  // }
 
   function handlePopupCreateLobbyButton () {
     let lobbyId = Math.floor(100000000 + Math.random() * 900000000); 
@@ -59,20 +54,13 @@ const Lobbies = () => {
       console.log("Something went wrong while creating lobby: ", error);
       return;
     }
-
-    // setPopupShow(false);
-    // setNewLobbyName("");
-    // setNewLobbyMaxPlayers(5);
     navigate(`/lobbies/${lobbyId}`,{state:{ isHost:true}});
   }
 
   const handleJoinExistingLobby = () => {
-    // here will come the lobby join functionality. user will be added to lobby with given id
     navigate(`/lobbies/${joinLobbyId}`);
   }
 
-  // below useEffect method will detect changes in lobby list 
-  // current lobbies in db will kept fresh inside of an array
   useEffect(() => {
     const q = query(collection(db, "lobbies/"));
     let lobbiesFromDb = [];
@@ -141,9 +129,6 @@ const Lobbies = () => {
             </div>
             <div className="lobbiesBody__table__body">
               {lobbies.map((lobby) => {
-                // if(lobby.players.length === 0){
-                //   return;}
-
                 return(
                   <div key = {lobby.lobbyId} onClick = {()=> handleTableRowClick(lobby.players.length,lobby.maxPlayers,lobby.lobbyId,lobby.status)} className="lobbiesBody__table_body_row">
                     <p>{lobby.name}</p>
@@ -166,7 +151,7 @@ const Lobbies = () => {
           </div>
           
         </div>
-    </div>
+      </div>
 
 
 

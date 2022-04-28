@@ -218,23 +218,39 @@ const updateLobbyStatusDB = async(lobbyId, roundEnded, currentRound, status) => 
   await prepareAllPlayersToNextRound(lobbyId);
 }
 
-const updateGameHistoryOfPlayer = async(playerId, tracks, answers, scores, remainingTimes) => {
+const updateGameHistoryOfPlayer = async(playerId, playbackTime, noRounds, tracks, answers, scores, remainingTimes, currentDate) => {
   const userRef = doc(db, "users", `${playerId}`);
 
   let userSnap = await getDoc(userRef);
   let user =  userSnap.data();
-  console.log(user);
   if (user !== undefined) {
     let gameHistoryCopy = user.gameHistory;
     let newGame = {};
+    newGame.playbackTime = playbackTime;
+    newGame.noRounds = noRounds;
     newGame.tracks = tracks;
     newGame.answers = answers;
     newGame.scores = scores;
     newGame.remainingTimes = remainingTimes;
+    newGame.currentDate = currentDate;
     await updateDoc(userRef, {
       gameHistory: [...gameHistoryCopy, newGame]
     })
   }
+}
+
+const getGameHistoryOfPlayer = async(playerId) => {
+  const userRef = doc(db, "users", `${playerId}`);
+
+  let userSnap = await getDoc(userRef);
+  let user =  userSnap.data();
+  if (user !== undefined) {
+    return user.gameHistory;
+  }
+}
+
+const updatePlaylistTopScores = async(playlistId, playerId) => {
+
 }
 
 const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingTime) => {
@@ -375,6 +391,7 @@ export {
     updateLobbyMusicDB,
     updateLobbyStatusDB,
     updatePlayerRoundData,
+    getGameHistoryOfPlayer,
     checkIfAllPlayersAnswered,
     checkIfPlayerAnswered,
     updateGameHistoryOfPlayer,

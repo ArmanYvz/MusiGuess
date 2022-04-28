@@ -64,8 +64,9 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   const handleEndGame = async() => {
     console.log("end game click");
     console.log(lobby.tracks);
+    let currentDate = new Date().toLocaleString() + "";
     await lobby.players.forEach((player) => {
-      updateGameHistoryOfPlayer(player.userId, lobby.tracks, player.answers, player.scores, player.remainingTimes);
+      updateGameHistoryOfPlayer(player.userId, lobby.playbackTime, lobby.noRounds, lobby.tracks, player.answers, player.scores, player.remainingTimes, currentDate);
     })
     updateLobbyStatusDB(lobbyId, false, lobby.currentRound, "Game End");
   }

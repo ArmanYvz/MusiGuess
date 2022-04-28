@@ -1,27 +1,8 @@
 import React from 'react'
 import './GameResults.css'
-
+import {calculateRatio, calculateAvgAnswerTime} from '../../utils/GameUtils'
 
 const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
-    const calculateRatio = (player) => {
-        let idx = 0;
-        let correctCount = 0;
-        player.answers.forEach((answer) => {
-            if (answer === lobby.tracks[idx].trackName) {
-                correctCount++;
-            }
-            idx++;
-        })
-        return (100 * Math.round(correctCount/lobby.noRounds * 100)/100);
-    }
-
-    const calculateAvgAnswerTime = (player) => {
-        let totalAnswerTime = 0;
-        player.remainingTimes.forEach((remaining) => {
-            totalAnswerTime += parseInt(lobby.playbackTime - remaining);
-        })
-        return (Math.round(totalAnswerTime/lobby.noRounds * 100)/100).toFixed(2);
-    }
 
     const Scoreboard = () => {
         let count = 0;
@@ -33,8 +14,8 @@ const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
                         <p>{count}</p>
                         <p>{player.userName}</p>
                         <p>{Math.round((player.totalScore * 100)/100).toFixed(0)}</p>
-                        <p>{calculateRatio(player)}%</p>
-                        <p>{calculateAvgAnswerTime(player)} sec</p>
+                        <p>{calculateRatio(player, lobby)}%</p>
+                        <p>{calculateAvgAnswerTime(player, lobby)} sec</p>
                     </div>
                 )
             })
