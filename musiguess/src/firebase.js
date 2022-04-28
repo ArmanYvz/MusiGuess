@@ -212,6 +212,8 @@ const updateLobbyStatusDB = async(lobbyId, roundEnded, currentRound, status) => 
     currentRound: currentRound,
     status: status 
   });
+
+  await prepareAllPlayersToNextRound(lobbyId);
 }
 
 const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingTime) => {
@@ -241,13 +243,35 @@ const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingT
 
   playersCopy = lobby.players;
 
+  let retVal = true;
+
   playersCopy.forEach((player) => {
+    //console.log(player.selectionDone);
     if (!player.selectionDone) {
-      return false;
+      retVal = false;
     }
   })
-  return true;
+  console.log(retVal);
 
+  return retVal;
+
+}
+
+const prepareAllPlayersToNextRound = async(lobbyId) => {
+  let lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  let lobbySnap = await getDoc(lobbyRef);
+  let lobby =  lobbySnap.data();
+
+  let playersCopy = lobby.players;
+
+  playersCopy.forEach((player) => {
+    player.selectionDone = false
+  })
+
+  await updateDoc(lobbyRef,{
+    players: [...playersCopy]
+  });
 }
 
 const checkIfAllPlayersAnswered = async(lobbyId) => {

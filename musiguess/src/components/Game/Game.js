@@ -22,6 +22,7 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   const selectionText = useRef();
 
   useEffect(()=>{
+    setUserSelectionDone(false);
     didRoundStart.current = false;
     setIsTimerActive(true);
     const answers = [];
@@ -52,6 +53,7 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
 
   const handleEndGame = () => {
     console.log("end game click");
+    updateLobbyStatusDB(lobbyId, false, lobby.currentRound, "Game End");
     // game end logic will be coded here
   }
 
@@ -66,18 +68,22 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
     return score;
   }
 
-  const pull_data = (data) => {
+  const pull_data = async(data) => {
     time = (Math.round(data * 100)/100).toFixed(2);
     //console.log(time);
     if(time < 0.01) {   // it means round ended and we still didn't make a selection
       stopSound(lobby.currentRound-1);
       setIsTimerActive(false);
-      updatePlayerRoundData(localStorage.getItem("userId"), lobbyId, "NaN", 0, 0);
+      let resp = await updatePlayerRoundData(localStorage.getItem("userId"), lobbyId, "NaN", 0, 0);
+      if (resp) {
+        updateLobbyStatusDB(lobbyId, true, lobby.currentRound, lobby.status);
+      }
     }
   }
 
 
   const handleAnswerClick = async(text) => {
+    console.log(text);
     setIsTimerActive(false);
     setUserSelectionDone(true);
     stopSound(lobby.currentRound-1);  // stop sound after we made a choice
@@ -89,7 +95,7 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
     }
   }
 
-  const QuestionAnswers = React.memo(() =>{
+  const QuestionAnswers = () =>{
     //console.log(shuffledAnswers);
     if (!userSelectionDone) {   // if we never made a selection, render answers as enabled so we can choose during round
       if (shuffledAnswers.length > 0) {
@@ -143,7 +149,7 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
     }
     
     
-  })
+  }
 
   const RoundScores = () => {
     return(
@@ -256,20 +262,22 @@ function shuffle(array) {
         </div>
         <div className="game__main__right">
           <div className="game__main__right__leaderboardContainer">
-            <div className="game__main__right__leaderboardContainer__roundScores">
-              <p>Scores</p>
-              <div className="game__main__right__leaderboardContainer__roundScores__table">
-                { lobby.roundEnded &&
+            { lobby.roundEnded &&
+              <div className="game__main__right__leaderboardContainer__roundScores">
+                <p>Scores</p>
+                <div className="game__main__right__leaderboardContainer__roundScores__table">
                   <RoundScores/>
-                }
+                </div>
               </div>
-            </div>
-            <div className="game__main__right__leaderboardContainer__overallScores">
-              <p>Overall</p>
-              <div className="game__main__right__leaderboardContainer__overallScores__table">
-                <OverallScores/>
+            }
+            { lobby.roundEnded &&
+              <div className="game__main__right__leaderboardContainer__overallScores">
+                <p>Overall</p>
+                <div className="game__main__right__leaderboardContainer__overallScores__table">
+                  <OverallScores/>
+                </div>
               </div>
-            </div>
+            }
           </div>
         </div>
       </div>

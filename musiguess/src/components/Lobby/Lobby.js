@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import Game from "../Game/Game";
+import GameResults from "../GameResults/GameResults";
 // import useLobby from "../../hooks/useLobby";
 
 const Lobby = () => {
@@ -79,6 +80,7 @@ const Lobby = () => {
     isHost: false,
     scores: [],
     answers: [],
+    selectionDone: false,
     totalScore: 0,
     remainingTimes: [],
   };
@@ -361,6 +363,14 @@ const Lobby = () => {
             currentPlayerHostCheck = {currentPlayerHostCheck}
             lobbyId = {lobbyId}
             />
+          }
+          { lobby.status === "Game End" &&
+            <GameResults
+            lobby = {lobby}
+            currentPlayerHostCheck = {currentPlayerHostCheck}
+            lobbyId = {lobbyId}
+            />
+
           }
         </>
         
