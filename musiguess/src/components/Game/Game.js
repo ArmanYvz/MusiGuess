@@ -6,9 +6,16 @@ import { useNavigate } from "react-router";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db, updatePlayerRoundData, updateLobbyStatusDB, updateGameHistoryOfPlayer, checkIfPlayerAnswered, checkIfAllPlayersAnswered } from "../../firebase";
 import Timer from "../Timer/Timer";
+import { auth } from "../../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   const navigate = useNavigate();
+  const [user, loading, error] = useAuthState(auth);
+  useEffect(() => {
+      if (loading) return;
+      if (!user) return navigate("/", { replace: true });
+  }, [user, loading])
   var time = 0;
 
   const[isTimerActive, setIsTimerActive] = useState(false);

@@ -6,13 +6,20 @@ import { useNavigate, useParams, useLocation, usePrompt} from "react-router";
 import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB, updateGameSettingsDB, updateLobbyMusicDB, updateLobbyStatusDB} from "../../firebase";
 import { useEffect, useState } from "react";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 import Game from "../Game/Game";
 import GameResults from "../GameResults/GameResults";
 // import useLobby from "../../hooks/useLobby";
 
 const Lobby = () => {
   const navigate = useNavigate();
+
+  const [user, loading, error] = useAuthState(auth);
+  useEffect(() => {
+      if (loading) return;
+      if (!user) return navigate("/", { replace: true });
+  }, [user, loading])
   //get the lobby id from url
   const { lobbyId } = useParams();
 
@@ -311,7 +318,7 @@ const Lobby = () => {
                       <div className="lobby__main__left__settings__bottom__left">
                         <p>Playback Time: {lobby.playbackTime}</p>
                         <div className="lobby__main__left__settings__bottom__left__box">
-                          <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, parseInt(e.target.value),lobby.playlistId)} type="range"  min="10" max="60" step="5" />
+                          <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, parseInt(e.target.value),lobby.playlistId)} type="range"  min="10" max="30" step="5" />
                         </div>
                       </div>
                       <div className="lobby__main__left__settings__bottom__right">

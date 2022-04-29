@@ -5,14 +5,20 @@ import React from "react";
 import {useState,useEffect} from "react";
 import { useNavigate } from "react-router";
 
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
 
 import CreateLobbyPopup from "../CreateLobbyPopup/CreateLobbyPopup";
 
 import { doc, collection, query, onSnapshot, setDoc } from "firebase/firestore"; 
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const Lobbies = () => {
   const navigate = useNavigate();
+  const [user, loading, error] = useAuthState(auth);
+  useEffect(() => {
+      if (loading) return;
+      if (!user) return navigate("/", { replace: true });
+  }, [user, loading])
 
   const [lobbies, setLobbies] = useState([]);
   const [joinLobbyId, setJoinLobbyId] = useState("");

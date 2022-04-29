@@ -3,10 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Home.css";
 import band from "../../assets/band.png";
 import backgroundShape from "../../assets/backgroundShape.png";
+import { useEffect, useState } from "react";
 import { logout } from "../../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, db } from "../../firebase";
 
 const Home = () => {
   const navigate = useNavigate();
+
+  const [user, loading, error] = useAuthState(auth);
 
   const playButtonHandle = () => {
     navigate("/lobbies", { replace: true });
@@ -17,6 +22,11 @@ const Home = () => {
     navigate("/gamehistory", { replace: true });
   }
 
+  useEffect(() => {
+    if (loading) return;
+    if (!user) return navigate("/", { replace: true });
+  }, [user, loading])
+
   return (
     <div className="home">
       <div className="header">
@@ -26,7 +36,7 @@ const Home = () => {
         </div>
         <div className="header__right">
           <h1 to="/" className="header__right__link noselect">
-            WELCOME <span>{localStorage.getItem("userName") ? localStorage.getItem("userName").toUpperCase(): localStorage.getItem("userName")}</span> !
+            WELCOME <span>{localStorage.getItem("userName") ? localStorage.getItem("userName").toUpperCase() : localStorage.getItem("userName")}</span> !
           </h1>
           <hr />
           <Link to="/" onClick={logout} className="header__right__link">

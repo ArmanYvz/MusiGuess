@@ -2,44 +2,48 @@ import React from "react";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-
 import { db, getGameHistoryOfPlayer } from "../../firebase";
 import "./GameHistory.css";
 import { doc, collection, query, onSnapshot, setDoc } from "firebase/firestore";
 import { calculateRatioGameHistory, calculateAvgAnswerTimeGameHistory, calculateTotalScoreGameHistory } from "../../utils/GameUtils";
+import { auth } from "../../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const GameHistory = () => {
     const navigate = useNavigate();
+    const [user, loading, error] = useAuthState(auth);
 
-    const [user, setUser] = useState();
+    const [player, setPlayer] = useState();
 
     const handleBackHomeButton = () => {
         navigate("/home", { replace: true });
     };
 
     useEffect(() => {
+        if (loading) return;
+        if (!user) return navigate("/", { replace: true });
         //const data = getGameHistoryOfPlayer(localStorage.getItem("userId"));
         const q = query(doc(db, `users/` + `${localStorage.getItem("userId")}`));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            setUser(querySnapshot.data());
-            console.log(user);
+            setPlayer(querySnapshot.data());
+            console.log(player);
         })
 
         return () => {
             unsubscribe();
         }
 
-    }, []);
+    }, [user, loading]);
 
     return (
-        <>  {user !== undefined &&
+        <>  {player !== undefined &&
             <div className="gameHistory">
                 <div className="gameHistoryHeader">
                     <div className="gameHistoryHeader__logoText">
                         <p className="gameHistoryHeader__logoText__top">Musi</p>
                         <p className="gameHistoryHeader__logoText__bottom">Guess</p>
                     </div>
-                    <h1>Game History of {user.name}</h1>
+                    <h1>Game History of {player.name}</h1>
                     <button
                         className="gameHistoryHeader__backToHomeButton"
                         onClick={handleBackHomeButton}
@@ -56,7 +60,7 @@ const GameHistory = () => {
                             <p>Avg. Answer Time</p>
                         </div>
                         <div className="gameHistoryBody__table__body">
-                            {user.gameHistory.map((game) => {
+                            {player.gameHistory.map((game) => {
                                 return (
                                     <div className="gameHistoryBody__table_body_row">
                                         <p>{game.currentDate}</p>
