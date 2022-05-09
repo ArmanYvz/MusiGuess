@@ -7,7 +7,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router";
 
 const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
-    //const navigate = useNavigate();
+    const navigate = useNavigate();
     //const [user, loading, error] = useAuthState(auth);
 
     // useEffect(() => {
@@ -15,14 +15,16 @@ const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
     //     if (!user) return navigate("/", { replace: true });
     // }, [user, loading])
 
-    /* const handleExitButton = () => {
+    const handleExitButton = () => {
         navigate("/home", { replace: true });
-    } */
+    } 
     
     const Scoreboard = () => {
         let count = 0;
+        const playersSorted = lobby.players.sort((a, b) =>  b.totalScore - a.totalScore);
+
         return (
-            lobby.players.map((player) => {
+            playersSorted.map((player) => {
                 count++;
                 return (
                     <div className="gameResults__main__leftTable__rowContainer__row">
@@ -92,7 +94,7 @@ const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
                 </div>
                 <div className="gameResults__footer__right">
                     {/* <button className="gameResults__footer__right__buttonBack">Back to Lobbies</button> */}
-                    <button href="/home" className="gameResults__footer__right__exit">Exit</button>
+                    <button onClick = {handleExitButton} className="gameResults__footer__right__exit">Exit</button>
                 </div>
 
             </div>

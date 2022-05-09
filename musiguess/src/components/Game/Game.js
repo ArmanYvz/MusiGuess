@@ -173,8 +173,10 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   }
 
   const RoundScores = () => {
+    const playersSorted = lobby.players.sort((a, b) =>  b.scores[lobby.currentRound-1] - a.scores[lobby.currentRound-1]);
+    console.log(playersSorted);
     return(
-      lobby.players.map((player) => {
+      playersSorted.map((player) => {
         return(
           <div className="game__main__right__leaderboardContainer__table__row">
             <p>{player.userName} (+{((lobby.playbackTime)-(Math.round(player.remainingTimes[lobby.currentRound-1] * 100)/100).toFixed(2)).toFixed(2)} sec)</p>
@@ -186,8 +188,9 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
   }
 
   const OverallScores = () => {
+    const playersSorted = lobby.players.sort((a, b) =>  b.totalScore - a.totalScore);
     return(
-      lobby.players.map((player) => {
+      playersSorted.map((player) => {
         return(
           <div className="game__main__right__leaderboardContainer__table__row">
             <p>{player.userName}</p>
