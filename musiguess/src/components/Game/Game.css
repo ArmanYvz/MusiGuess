@@ -63,6 +63,17 @@
     cursor: pointer;
 }
 
+.game__main__left__questionContainer__volumeSlider{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top:auto;
+    gap:1rem;
+}
+
+.game__main__left__questionContainer__volumeSlider p{
+    min-width: 58px;
+}
 
 .game__main__right{
     flex:2.5;

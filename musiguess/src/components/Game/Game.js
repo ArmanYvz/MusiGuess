@@ -1,6 +1,7 @@
 import React from "react";
 import "./Game.css";
 import CloseIcon from "@mui/icons-material/Close";
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
@@ -174,7 +175,7 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
 
   const RoundScores = () => {
     const playersSorted = lobby.players.sort((a, b) =>  b.scores[lobby.currentRound-1] - a.scores[lobby.currentRound-1]);
-    console.log(playersSorted);
+    // console.log(playersSorted);
     return(
       playersSorted.map((player) => {
         return(
@@ -203,12 +204,27 @@ const Game = ({lobby, currentPlayerHostCheck, lobbyId}) => {
 
   // state to store audios of every round
   const [audioArray,setAudioArray] = useState();
+  const [audioVolume,setAudioVolume] = useState(0.5);
+
+  useEffect(()=>{
+    if(audioArray){
+      audioArray.forEach((track) => {
+        track.audio.volume = audioVolume;
+      })
+    }
+
+  },[audioVolume]);
+
 
   useEffect(()=>{
     let i = 0;
     const audioData = lobby.tracks.map((track)=>{
       i++;
       return {audio: new Audio("https://p.scdn.co/mp3-preview/" + lobby.tracks[i-1].previewUrl), isPlaying: false}
+    })
+
+    audioData.forEach((track)=>{
+      track.audio.volume = audioVolume;
     })
 
     setAudioArray(audioData);
@@ -281,6 +297,12 @@ function shuffle(array) {
             </div>
             <div className="game__main__left__questionContainer__answers">
               <QuestionAnswers/>
+            </div>
+            <div className="game__main__left__questionContainer__volumeSlider">
+              <VolumeUpIcon/>
+              <input type="range" min="0" max="1" step="0.1" value={audioVolume} 
+                    onChange={(e)=>setAudioVolume(e.target.value)}/>
+              <p>{audioVolume*100} %</p>
             </div>
           </div>
         </div>
