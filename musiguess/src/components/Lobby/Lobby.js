@@ -4,6 +4,7 @@ import "./Lobby.css";
 import { useNavigate, useParams, useLocation, usePrompt} from "react-router";
 
 import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB, updateGameSettingsDB, updateLobbyMusicDB, updateLobbyStatusDB} from "../../firebase";
+import {getMusicDataFromServer} from '../../utils/GameUtils'
 import { useEffect, useState } from "react";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
@@ -205,7 +206,7 @@ const Lobby = () => {
   const handleStartGame = async() => {
     //gameStartClicked = true;
     try {
-      getMusicDataFromServer().then(data => {
+      getMusicDataFromServer(lobby.playlistId, lobby.noRounds).then(data => {
         data.tracks.forEach(d => {
           let trimmed = d.previewUrl.toString().split('view/');
           d.previewUrl = trimmed[1].split('?cid=')[0];
@@ -227,23 +228,6 @@ const Lobby = () => {
     
     //navigate("/game", { replace: true });
   };
-
-  const getMusicDataFromServer = async() => {
-    try {
-      const response = await fetch(`https://musiguess.herokuapp.com/api/${lobby.playlistId}/${lobby.noRounds}`);
-      //console.log(response.json());
-      let returnArr = [];
-      await response.json().then(data => {
-        //returnArr.playlistName = data.playlistName;
-        returnArr.tracks = data.tracks;
-        returnArr.wrongAnswers = data.wrongAnswers;
-      })
-      return returnArr;
-    }
-    catch(error) {
-      console.log(error);
-    }
-  }
 
   const PlaylistDropdown = () =>{
     return(

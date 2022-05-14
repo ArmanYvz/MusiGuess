@@ -1,4 +1,21 @@
 import React from 'react'
+import axios from 'axios';
+
+export async function getMusicDataFromServer(playlistId, noRounds) {
+    let returnArr = [];
+    try {
+        await axios.get(`https://musiguess.herokuapp.com/api/${playlistId}/${noRounds}`)
+        .then(res => {
+            const data = res.data;
+            returnArr.tracks = data.tracks;
+            returnArr.wrongAnswers = data.wrongAnswers;
+        })
+        return returnArr;
+    }
+    catch(error) {
+        console.log(error);
+    }
+}
 
 export function calculateRatio(player, lobby) {
     let idx = 0;
