@@ -3,15 +3,24 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import "./Lobby.css";
 import { useNavigate, useParams, useLocation, usePrompt} from "react-router";
 
-import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB, updateGameSettingsDB} from "../../firebase";
+import { insertPlayerToLobbyDB, deletePlayerFromLobbyDB, deleteLobbyFromDB, getPlayerCountFromDB, getPlaylistsFromDB, updateGameSettingsDB, updateLobbyMusicDB, updateLobbyStatusDB} from "../../firebase";
 import { useEffect, useState } from "react";
 import { doc, getDoc, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import Game from "../Game/Game";
+import GameResults from "../GameResults/GameResults";
 // import useLobby from "../../hooks/useLobby";
 
 const Lobby = () => {
   const navigate = useNavigate();
-  //get the loby id from url
+
+  const [user, loading, error] = useAuthState(auth);
+  useEffect(() => {
+      if (loading) return;
+      if (!user) return navigate("/", { replace: true });
+  }, [user, loading])
+  //get the lobby id from url
   const { lobbyId } = useParams();
 
   //a state to get extra info like should user be the host or not
@@ -30,6 +39,8 @@ const Lobby = () => {
   // const [currentPlayer,setCurrentPlayer] = useState();
 
   const [playlists,setPlaylists] = useState([]);
+  
+  //var gameStartClicked = false;
 
   useEffect(()=>{
       const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
@@ -76,6 +87,8 @@ const Lobby = () => {
     isHost: false,
     scores: [],
     answers: [],
+    selectionDone: false,
+    totalScore: 0,
     remainingTimes: [],
   };
 
@@ -92,22 +105,40 @@ const Lobby = () => {
   //   }
   // }, []);
 
-  useEffect(() => {
-      if(!isFetchingLobby){
-        // console.log(lobby.players.length)
-        if (lobby.players.length === 0) {
-          // console.log("bura çalıştı");
-          // setNewPlayer((prev)=>{
-          //   return {...prev, isHost: true};
-          // })
-          newPlayer.isHost = true;
-        }
-        else{
+  // useEffect(() => {
+  //     if(!isFetchingLobby){
+  //       // console.log(lobby.players.length)
+  //       if (lobby.players.length === 0) {
+  //         // console.log("bura çalıştı");
+  //         // setNewPlayer((prev)=>{
+  //         //   return {...prev, isHost: true};
+  //         // })
+  //         newPlayer.isHost = true;
+  //       }
+  //       else{
           
+  //       }
+  //     }
+
+  // }, [isFetchingLobby]);
+
+  useEffect(()=>{
+    if(!isFetchingLobby){
+      // console.log(lobby.players.length)
+      let nobodyIsHost = true;
+
+      lobby.players.forEach((player)=>{
+        if(player.isHost === true){
+          nobodyIsHost = false;
         }
+      })
+
+      if(nobodyIsHost){
+        newPlayer.isHost = true;
       }
 
-  }, [isFetchingLobby]);
+    }
+  },[isFetchingLobby])
 
   // join lobby on page load, delete user when component unmounts
   useEffect(() => {
@@ -137,13 +168,18 @@ const Lobby = () => {
   // this removes user if user closes browser directly
   useEffect(() => {
     window.onbeforeunload = function () {
-      console.log("deleting user...");
-      deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId)
+      //console.log("aa");
+      // if gameStartClicked true it means game will start, controlled unload happened
+      // so don't call deletePlayerFromLobbyDB(), player needs to stay in DB.
+      //if (!gameStartClicked) {   
+        deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId);
+      //}
+      //gameStartClicked = false;
     };
-
-    return () => {
+    return  () => {
       window.onbeforeunload = null;
     };
+    
   }, []);
 
 
@@ -166,9 +202,48 @@ const Lobby = () => {
     navigate("/lobbies", { replace: true });
   };
 
-  const handleStartGame = () => {
-    navigate("/game", { replace: true });
+  const handleStartGame = async() => {
+    //gameStartClicked = true;
+    try {
+      getMusicDataFromServer().then(data => {
+        data.tracks.forEach(d => {
+          let trimmed = d.previewUrl.toString().split('view/');
+          d.previewUrl = trimmed[1].split('?cid=')[0];
+        })
+
+        const newArr = [];
+        while(data.wrongAnswers.length) {  
+          const arr = data.wrongAnswers.splice(0,3);
+          const obj = Object.assign({}, arr);
+          newArr.push(obj);
+        }
+        data.wrongAnswers = newArr;
+        updateLobbyMusicDB(lobbyId, data.tracks, data.wrongAnswers);
+        updateLobbyStatusDB(lobbyId, false, 1, "In Game");
+      });
+    } catch(err) {
+      alert(err);
+    }
+    
+    //navigate("/game", { replace: true });
   };
+
+  const getMusicDataFromServer = async() => {
+    try {
+      const response = await fetch(`https://musiguess.herokuapp.com/api/${lobby.playlistId}/${lobby.noRounds}`);
+      //console.log(response.json());
+      let returnArr = [];
+      await response.json().then(data => {
+        //returnArr.playlistName = data.playlistName;
+        returnArr.tracks = data.tracks;
+        returnArr.wrongAnswers = data.wrongAnswers;
+      })
+      return returnArr;
+    }
+    catch(error) {
+      console.log(error);
+    }
+  }
 
   const PlaylistDropdown = () =>{
     return(
@@ -209,6 +284,7 @@ const Lobby = () => {
 
     try {
       if (!isFetchingLobby) {
+        //console.log("buradayim");
         const hostStatus = playerToCheck.isHost;
         return hostStatus;
       }
@@ -225,65 +301,86 @@ const Lobby = () => {
     <>
       {isFetchingLobby ? 
         <h1>Loading...</h1>
-       : 
-        <div className="lobby">
-          <div className="lobby__main">
-            <div className="lobby__main__left">
-              <h1>Game Settings</h1>
-              <div className="lobby__main__left__settings box">
-                <div className="lobby__main__left__settings__top">
-                  <p>Playlist</p>
-                  <PlaylistDropdown/>
-                  
-                </div>
-                <div className="lobby__main__left__settings__bottom">
-                  <div className="lobby__main__left__settings__bottom__left">
-                    <p>Playback Time: {lobby.playbackTime}</p>
-                    <div className="lobby__main__left__settings__bottom__left__box">
-                      <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, e.target.value,lobby.playlistId)} type="range"  min="10" max="60" step="5" />
+        : 
+        <>
+          { lobby.status === "Waiting" &&
+            <div className="lobby">
+              <div className="lobby__main">
+                <div className="lobby__main__left">
+                  <h1>Game Settings</h1>
+                  <div className="lobby__main__left__settings box">
+                    <div className="lobby__main__left__settings__top">
+                      <p>Playlist</p>
+                      <PlaylistDropdown/>
+                      
+                    </div>
+                    <div className="lobby__main__left__settings__bottom">
+                      <div className="lobby__main__left__settings__bottom__left">
+                        <p>Playback Time: {lobby.playbackTime}</p>
+                        <div className="lobby__main__left__settings__bottom__left__box">
+                          <input value = {lobby.playbackTime} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, lobby.noRounds, parseInt(e.target.value),lobby.playlistId)} type="range"  min="10" max="30" step="5" />
+                        </div>
+                      </div>
+                      <div className="lobby__main__left__settings__bottom__right">
+                        <p>Number of Rounds: {lobby.noRounds}</p>
+                        <div className="lobby__main__left__settings__bottom__right__box">
+                          <input value = {lobby.noRounds} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, parseInt(e.target.value), lobby.playbackTime,lobby.playlistId)} type="range"  min="1" max="10" step="1" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lobby__main__left__settings__footer">
+                      <div className="lobby__main__left__settings__footer__logo">
+                        <p className="lobby__main__left__settings__footer__logo__top noselect">
+                          Musi
+                        </p>
+                        <p className="lobby__main__left__settings__footer__logo__bottom noselect">
+                          Guess
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="lobby__main__left__settings__bottom__right">
-                    <p>Number of Rounds: {lobby.noRounds}</p>
-                    <div className="lobby__main__left__settings__bottom__right__box">
-                      <input value = {lobby.noRounds} disabled = {!currentPlayerHostCheck()} onChange = {(e)=>updateGameSettingsDB(lobbyId, e.target.value, lobby.playbackTime,lobby.playlistId)} type="range"  min="1" max="10" step="1" />
-                    </div>
-                  </div>
                 </div>
-                <div className="lobby__main__left__settings__footer">
-                  <div className="lobby__main__left__settings__footer__logo">
-                    <p className="lobby__main__left__settings__footer__logo__top noselect">
-                      Musi
-                    </p>
-                    <p className="lobby__main__left__settings__footer__logo__bottom noselect">
-                      Guess
-                    </p>
-                  </div>
+                <div className="lobby__main__right">
+                  <h1>Players</h1>
+                  <LobbyPlayers />
                 </div>
               </div>
+              <div className="lobby__footer">
+                <button
+                  disabled={!currentPlayerHostCheck()}
+                  onClick={handleStartGame}
+                  className="lobby__footer__button--yellow"
+                >
+                  Start
+                </button>
+                <button
+                  onClick={handleBackToLobby}
+                  className="lobby__footer__button"
+                >
+                  <KeyboardBackspaceIcon fontSize="large" />
+                </button>
+                <h2>Lobby Id : {lobbyId}</h2>
+              </div>
             </div>
-            <div className="lobby__main__right">
-              <h1>Players</h1>
-              <LobbyPlayers />
-            </div>
-          </div>
-          <div className="lobby__footer">
-            <button
-              disabled={!currentPlayerHostCheck()}
-              onClick={handleStartGame}
-              className="lobby__footer__button--yellow"
-            >
-              Start
-            </button>
-            <button
-              onClick={handleBackToLobby}
-              className="lobby__footer__button"
-            >
-              <KeyboardBackspaceIcon fontSize="large" />
-            </button>
-            <h2>Lobby Id : {lobbyId}</h2>
-          </div>
-        </div>
+          }
+
+          { lobby.status === "In Game" &&
+            <Game 
+            lobby = {lobby} 
+            currentPlayerHostCheck = {currentPlayerHostCheck}
+            lobbyId = {lobbyId}
+            />
+          }
+          { lobby.status === "Game End" &&
+            <GameResults
+            lobby = {lobby}
+            currentPlayerHostCheck = {currentPlayerHostCheck}
+            lobbyId = {lobbyId}
+            />
+
+          }
+        </>
+        
       }
     </>
   );

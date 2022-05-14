@@ -33,6 +33,7 @@ const signInWithGoogle = async() => {
           await db.collection("users").add({
               uid: user.uid,
               name: user.displayName,
+              gameHistory: [],
               authProvider: "google",
               email: user.email,
           });
@@ -81,6 +82,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       const user = res.user;
       await db.collection("users").add({
         uid: user.uid,
+        gameHistory: [],
         name,
         authProvider: "local",
         email,
@@ -193,6 +195,156 @@ const updateGameSettingsDB = async(lobbyId, noRounds, playbackTime,playlistId) =
   });
 }
 
+// update lobby musics and wrong answers
+const updateLobbyMusicDB = async(lobbyId, tracks, wrongAnswers) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  await updateDoc(lobbyRef,{
+    tracks: tracks,
+    wrongAnswers: wrongAnswers
+  });
+  
+}
+
+const updateLobbyStatusDB = async(lobbyId, roundEnded, currentRound, status) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  await updateDoc(lobbyRef,{
+    roundEnded: roundEnded,
+    currentRound: currentRound,
+    status: status 
+  });
+
+  await prepareAllPlayersToNextRound(lobbyId);
+}
+
+const updateGameHistoryOfPlayer = async(playerId, playbackTime, noRounds, tracks, answers, scores, remainingTimes, currentDate) => {
+  const userRef = doc(db, "users", `${playerId}`);
+
+  let userSnap = await getDoc(userRef);
+  let user =  userSnap.data();
+  if (user !== undefined) {
+    let gameHistoryCopy = user.gameHistory;
+    let newGame = {};
+    newGame.playbackTime = playbackTime;
+    newGame.noRounds = noRounds;
+    newGame.tracks = tracks;
+    newGame.answers = answers;
+    newGame.scores = scores;
+    newGame.remainingTimes = remainingTimes;
+    newGame.currentDate = currentDate;
+    await updateDoc(userRef, {
+      gameHistory: [...gameHistoryCopy, newGame]
+    })
+  }
+}
+
+const getGameHistoryOfPlayer = async(playerId) => {
+  const userRef = doc(db, "users", `${playerId}`);
+
+  let userSnap = await getDoc(userRef);
+  let user =  userSnap.data();
+  if (user !== undefined) {
+    return user.gameHistory;
+  }
+}
+
+const updatePlaylistTopScores = async(playlistId, playerId) => {
+
+}
+
+const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingTime) => {
+  let lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  let lobbySnap = await getDoc(lobbyRef);
+  let lobby =  lobbySnap.data();
+
+  let playersCopy = lobby.players;
+
+  playersCopy.forEach((player) => {
+    if (player.userId === playerId) {
+      player.selectionDone = true;
+      player.totalScore = player.totalScore + score;
+      player.scores = [...player.scores, score];
+      player.remainingTimes = [...player.remainingTimes, remainingTime];
+      player.answers = [...player.answers, answer];
+    }
+  })
+
+  await updateDoc(lobbyRef,{
+    players: [...playersCopy]
+  });
+
+  lobbySnap = await getDoc(lobbyRef);
+  lobby =  lobbySnap.data();
+
+  playersCopy = lobby.players;
+
+  let retVal = true;
+
+  playersCopy.forEach((player) => {
+    //console.log(player.selectionDone);
+    if (!player.selectionDone) {
+      retVal = false;
+    }
+  })
+  console.log(retVal);
+
+  return retVal;
+
+}
+
+const prepareAllPlayersToNextRound = async(lobbyId) => {
+  let lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  let lobbySnap = await getDoc(lobbyRef);
+  let lobby =  lobbySnap.data();
+
+  let playersCopy = lobby.players;
+
+  playersCopy.forEach((player) => {
+    player.selectionDone = false
+  })
+
+  await updateDoc(lobbyRef,{
+    players: [...playersCopy]
+  });
+}
+
+const checkIfAllPlayersAnswered = async(lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+
+  let playersCopy = lobby.players;
+
+  playersCopy.forEach((player) => {
+    
+    // if (player.selectionDone) {
+    //   return true;
+    // }
+    console.log(player);
+  })
+}
+
+const checkIfPlayerAnswered = async(playerId, lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+
+  let playersCopy = lobby.players;
+
+  playersCopy.forEach((player) => {
+    if (player.userId === playerId && player.selectionDone) {
+      return true;
+    }
+  })
+
+  return false;
+}
+
 
 // delete a lobby
 const deleteLobbyFromDB = async (lobbyId) => {
@@ -236,6 +388,13 @@ export {
     deleteLobbyFromDB,
     getPlayerCountFromDB,
     updateGameSettingsDB,
+    updateLobbyMusicDB,
+    updateLobbyStatusDB,
+    updatePlayerRoundData,
+    getGameHistoryOfPlayer,
+    checkIfAllPlayersAnswered,
+    checkIfPlayerAnswered,
+    updateGameHistoryOfPlayer,
     getPlaylistsFromDB,
     logout,
 };

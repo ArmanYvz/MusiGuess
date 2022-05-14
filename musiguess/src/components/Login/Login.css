@@ -5,27 +5,75 @@ body {
 .login-main-container{
   display:flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .login-main-container p {
-  color:#91CB82;
+  text-decoration: none;
+  /* color:#91CB82; */
+  color: white;
+  text-align:center;
 }
 
-.login-main-container p:hover{
-  color:#71A663;
+.login-main-container a{
+  text-decoration: none;
 }
+
+.login-main-container span{
+  color: rgba(234, 238, 19,0.5);
+}
+
+.login-main-container span:hover{
+  color: rgba(234, 238, 19);
+}
+
 
 .headerText, .headerText2 {
     color: white;
 }
 
-  .header-container {
-    text-align: center;
+.headerText2{
+  margin-top:2rem;
+}
+
+.headerTextLogo{
+  display: flex;
+  flex-direction: column;
+}
+
+.headerTextLogoLeft{
+  font-family: "Sarala-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 64px;
+  color: rgba(234, 238, 19);
+  transition: all 0.3s ease-in-out;
+}
+
+.headerTextLogoRight{
+  font-family: "Sarala-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 32px;
+  margin-left: 5.5rem;
+  color: rgba(255, 255, 255);
+  transition: all 0.3s ease-in-out;
+}
+
+.header-container {
+    display:flex;
+    /* flex-direction: column; */
+    gap:1rem;
+    /* text-align: center; */
+    align-items: center;
+    justify-content: center;
     margin-top: 3%;
   }
 
   .login-container {
-    margin-top: 5%;
+    margin-top: 2rem;
     height: 60%;
     width: 30%;
     display: flex;
@@ -57,16 +105,25 @@ body {
 
   .btn-login:hover {
     background-color: black;
+    cursor:pointer;
   }
 
   .google-login {
-    background-color: #91CB82;
+    background-color: rgba(234, 238, 19, 0.6);
   }
 
   .google-login:hover {
-    background-color: #71A663;
+    background-color: rgba(234, 238, 19, 0.8);
+    cursor: pointer;
+
   }
 
   .login div {
     margin-top: 7px;
+  }
+  
+  .login-container__footer{
+    display:flex;
+    align-items: center;
+    justify-content: center;
   }

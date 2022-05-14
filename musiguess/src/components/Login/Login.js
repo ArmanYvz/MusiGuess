@@ -31,10 +31,14 @@ function Login() {
     return (
         <>
         <div className="login-main-container">
-            <div className="header header-container">
-                <h1 className="headerText">MusiGuess</h1>
-                <h4 className="headerText2">Login to challenge your music repertoire!</h4>
+            <div className="header-container">
+                <div className="headerTextLogo">
+                    <h1 className="headerTextLogoLeft noselect" >Musi</h1>
+                    <h1 className="headerTextLogoRight noselect">Guess</h1>
+                </div>
             </div>
+
+            
             <div className="container login-container">
                 <input
                     type="text"
@@ -59,13 +63,18 @@ function Login() {
                 <button className="btn-login google-login" onClick={signInWithGoogle}>
                     Login with Google
                 </button>
-                <div>
-                    <Link to="/resetpassword"><p>Forgot Password</p></Link>
-                </div>
-                <div>
-                    Don't have an account? <Link to="/register"><p>Register</p></Link> now.
+                <div className ="login-container__footer">
+                    <p>
+                        <Link to="/resetpassword"><span>Forgot Password </span></Link>
+                        <br/>
+                        Don't have an account?
+                        <Link to="/register"><span> Register </span></Link>
+                        now.
+                    </p>
+        
                 </div>
             </div>
+            <h3 className="headerText2">Login to challenge your music repertoire!</h3>
         </div>
         </>
     );

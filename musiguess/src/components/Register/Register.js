@@ -34,7 +34,7 @@ function Register() {
 
   useEffect(() => {
     if (loading) return;
-    if (user) navigate.replace("/Home");
+    if (user) navigate.replace("/");
   }, [user, loading]);
   return (
     <>
@@ -63,12 +63,6 @@ function Register() {
         />
         <button className="register__btn" onClick={register}>
           Register
-        </button>
-        <button
-          className="register__btn register__google"
-          onClick={signInWithGoogle}
-        >
-          Register with Google
         </button>
         <div>
           Already have an account? <Link to="/"><a>Login</a></Link> now.

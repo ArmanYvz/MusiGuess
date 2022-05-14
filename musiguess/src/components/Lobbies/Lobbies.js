@@ -5,15 +5,20 @@ import React from "react";
 import {useState,useEffect} from "react";
 import { useNavigate } from "react-router";
 
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
 
 import CreateLobbyPopup from "../CreateLobbyPopup/CreateLobbyPopup";
 
-//import { doc, setDoc, collection, query, where, getDocs, getDoc, onSnapshot, deleteDoc } from "firebase/firestore"; 
 import { doc, collection, query, onSnapshot, setDoc } from "firebase/firestore"; 
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const Lobbies = () => {
   const navigate = useNavigate();
+  const [user, loading, error] = useAuthState(auth);
+  useEffect(() => {
+      if (loading) return;
+      if (!user) return navigate("/", { replace: true });
+  }, [user, loading])
 
   const [lobbies, setLobbies] = useState([]);
   const [joinLobbyId, setJoinLobbyId] = useState("");
@@ -31,15 +36,11 @@ const Lobbies = () => {
     navigate("/home", { replace: true });
   };
 
-  // function generateLobbyId() {
-  //   return Math.floor(100000000 + Math.random() * 900000000); 
-  // }
-
   function handlePopupCreateLobbyButton () {
     let lobbyId = Math.floor(100000000 + Math.random() * 900000000); 
     try{
       setDoc(doc(db, "lobbies", `${lobbyId}`), {
-        currentRound: 0,
+        currentRound: 1,
         isActive: true,
         isGameStarted: false,
         lobbyId: lobbyId,
@@ -50,7 +51,7 @@ const Lobbies = () => {
         tracks: [],
         status: "Waiting",
         playbackTime: 15,
-        playlistId: "",
+        playlistId: "37i9dQZF1DXcNf6sH1qnKU",
         roundEnded: "",
         wrongAnswers: [],
   
@@ -59,20 +60,13 @@ const Lobbies = () => {
       console.log("Something went wrong while creating lobby: ", error);
       return;
     }
-
-    // setPopupShow(false);
-    // setNewLobbyName("");
-    // setNewLobbyMaxPlayers(5);
     navigate(`/lobbies/${lobbyId}`,{state:{ isHost:true}});
   }
 
   const handleJoinExistingLobby = () => {
-    // here will come the lobby join functionality. user will be added to lobby with given id
     navigate(`/lobbies/${joinLobbyId}`);
   }
 
-  // below useEffect method will detect changes in lobby list 
-  // current lobbies in db will kept fresh inside of an array
   useEffect(() => {
     const q = query(collection(db, "lobbies/"));
     let lobbiesFromDb = [];
@@ -90,12 +84,17 @@ const Lobbies = () => {
 
   }, []);
 
-  const handleTableRowClick = (playerLength,maxPlayers,lobbyId) =>{
-    if(playerLength < maxPlayers){
+  const handleTableRowClick = (playerLength,maxPlayers,lobbyId,status) =>{
+    if((playerLength < maxPlayers) && (status === "Waiting")){
       navigate(`/lobbies/${lobbyId}`);
     }
     else{
-      alert("This lobby is full");
+      if(!(playerLength < maxPlayers)) {
+        alert("This lobby is full");
+      }
+      else if(!(status === "Waiting")) {
+        alert("This lobby is busy right now");
+      }
     }
   }
 
@@ -136,11 +135,8 @@ const Lobbies = () => {
             </div>
             <div className="lobbiesBody__table__body">
               {lobbies.map((lobby) => {
-                // if(lobby.players.length === 0){
-                //   return;}
-
                 return(
-                  <div key = {lobby.lobbyId} onClick = {()=> handleTableRowClick(lobby.players.length,lobby.maxPlayers,lobby.lobbyId)} className="lobbiesBody__table_body_row">
+                  <div key = {lobby.lobbyId} onClick = {()=> handleTableRowClick(lobby.players.length,lobby.maxPlayers,lobby.lobbyId,lobby.status)} className="lobbiesBody__table_body_row">
                     <p>{lobby.name}</p>
                     <p>{lobby.lobbyId}</p>
                     <p>{lobby.status}</p>
@@ -161,7 +157,7 @@ const Lobbies = () => {
           </div>
           
         </div>
-    </div>
+      </div>
 
 
 

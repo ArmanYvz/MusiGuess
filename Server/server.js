@@ -1,10 +1,13 @@
 // a node.js server to handle requests to spotify api
 
 const express = require("express");
+const cors = require('cors');
 const SpotifyWebApi = require("spotify-web-api-node");
 
 const app = express();
 const port = 5000;
+
+app.use(cors());
 
 const dotenv = require('dotenv');
 
@@ -30,7 +33,8 @@ var wrongAnswers;
 // create a get route that sends a json response
 
 // if a track has valid preview url, track will be added into response array. then returned tracks will be used in client side. 
-app.get('/api/:playlistId/:noRounds', (req, res) => {
+app.get(`/api/:playlistId/:noRounds`, (req, res) => {
+    console.log(req);
     returnTrackCount = 0;
     //wrongAnswersCount = 0;
     arr = [];
@@ -74,7 +78,7 @@ app.get('/api/:playlistId/:noRounds', (req, res) => {
                                     //wrongAnswersCount++;
                                 }
                             }
-                        }),
+                        }).filter(n=>n),
                         "wrongAnswers": wrongAnswers
 
                     }

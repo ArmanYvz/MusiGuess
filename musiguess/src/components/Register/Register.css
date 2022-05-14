@@ -16,11 +16,11 @@
   }
 
   .register__container a{
-    color:#91CB82;
+    color:rgba(234, 238, 19, 0.4);
   }
 
   .register__container a:hover{
-    color:#71A663;
+    color:rgba(234, 238, 19, 0.8);
   }
 
   .register__textBox {
@@ -45,14 +45,15 @@
 
   .register__btn:hover{
     background-color: black;
+    cursor:pointer;
   }
 
   .register__google {
-    background-color: #91CB82;
+    background-color: rgba(234, 238, 19, 0.4);
   }
 
   .register__google:hover{
-    background-color: #71A663;
+    background-color: rgba(234, 238, 19, 0.8);
   }
 
   .register div {
