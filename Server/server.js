@@ -12,7 +12,7 @@ app.use(cors());
 const dotenv = require('dotenv');
 
 dotenv.config();
-console.log(`value is ${process.env.CLIENT_ID}`); // undefined
+//console.log(`value is ${process.env.CLIENT_ID}`); // undefined
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
@@ -34,7 +34,7 @@ var wrongAnswers;
 
 // if a track has valid preview url, track will be added into response array. then returned tracks will be used in client side. 
 app.get(`/api/:playlistId/:noRounds`, (req, res) => {
-    console.log(req);
+    //console.log(req);
     returnTrackCount = 0;
     //wrongAnswersCount = 0;
     arr = [];
@@ -107,6 +107,6 @@ function shuffle(array) {
     return array;
 }
 
-app.listen(port, () => {
+app.listen((process.env.PORT || 5000), () => {
     console.log(`Listening on port ${port}...`);
 })
