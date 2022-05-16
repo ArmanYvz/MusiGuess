@@ -34,7 +34,7 @@ function Register() {
 
   useEffect(() => {
     if (loading) return;
-    if (user) navigate.replace("/");
+    if (user) navigate("/home",{replace : true}); 
   }, [user, loading]);
   return (
     <>

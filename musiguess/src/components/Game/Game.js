@@ -347,16 +347,16 @@ function shuffle(array) {
             <CloseIcon />
           </button>
           { lobby.currentRound !== lobby.noRounds && lobby.roundEnded ?
-            <button className="game__footer__right__buttonNextRound" disabled={!currentPlayerHostCheck()} onClick={() => handleNextRound()}>
+            <button className="game__footer__right__buttonNextRound" hidden={!currentPlayerHostCheck()} onClick={() => handleNextRound()}>
               Next Round
             </button>
             :
             lobby.roundEnded ?
-            <button className="game__footer__right__buttonEndGame" disabled={!currentPlayerHostCheck()} onClick={() => handleEndGame()}>
+            <button className="game__footer__right__buttonEndGame" hidden={!currentPlayerHostCheck()} onClick={() => handleEndGame()}>
               End Game
             </button>
             :
-            <p>aaa</p>
+            <></>
             
           } 
           
