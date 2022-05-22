@@ -375,6 +375,33 @@ const getPlaylistsFromDB = async() => {
   return playlists;
 }
 
+// functions that we created specific for testing
+
+const getLobbyByLobbyId = async(lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+
+  return lobby;
+}
+
+const getPlayerOfLobby = async(playerId, lobbyId) => {
+  const lobbyRef = doc(db, "lobbies", `${lobbyId}`);
+
+  const lobbySnap = await getDoc(lobbyRef);
+  const lobby =  lobbySnap.data();
+  
+  let return_player;
+  lobby.players.forEach((player) => {
+    if (player.userId === playerId) {
+      console.log("player with same userid found");
+      return_player = player;
+    }
+  })
+  return return_player;
+}
+
 
 export {
     auth,
@@ -396,5 +423,7 @@ export {
     checkIfPlayerAnswered,
     updateGameHistoryOfPlayer,
     getPlaylistsFromDB,
+    getLobbyByLobbyId,
+    getPlayerOfLobby,
     logout,
 };

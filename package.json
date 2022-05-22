@@ -31,6 +31,11 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "eject": "react-scripts eject"
   },
+  "jest": {
+    "setupFiles": [
+      "./jest-setup.js"
+    ]
+  },
   "type": "module",
   "eslintConfig": {
     "extends": "react-app"
