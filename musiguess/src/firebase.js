@@ -288,7 +288,7 @@ const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingT
       retVal = false;
     }
   })
-  console.log(retVal);
+  // console.log(retVal);
 
   return retVal;
 
