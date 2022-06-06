@@ -27,7 +27,7 @@ const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
             playersSorted.map((player) => {
                 count++;
                 return (
-                    <div className="gameResults__main__leftTable__rowContainer__row">
+                    <div className="gameResults__main__leftTable__rowContainer__row" key = {player.userId}>
                         <p>{count}</p>
                         <p>{player.userName}</p>
                         <p>{Math.round((player.totalScore * 100) / 100).toFixed(0)}</p>
@@ -42,10 +42,10 @@ const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
     const Tracks = () => {
         let count = 0;
         return (
-            lobby.tracks.map((track) => {
+            lobby.tracks.map((track,idx) => {
                 count++;
                 return (
-                    <div className="gameResults__main__rightTable__rowContainer__row">
+                    <div className="gameResults__main__rightTable__rowContainer__row" key = {idx}>
                         <p>{count}</p>
                         <p>{track.trackName}</p>
                         <p>{track.trackArtist}</p>
