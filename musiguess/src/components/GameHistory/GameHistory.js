@@ -26,7 +26,7 @@ const GameHistory = () => {
         const q = query(doc(db, `users/` + `${localStorage.getItem("userId")}`));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             setPlayer(querySnapshot.data());
-            console.log(player);
+            // console.log(player);
         })
 
         return () => {
@@ -60,9 +60,9 @@ const GameHistory = () => {
                             <p>Avg. Answer Time</p>
                         </div>
                         <div className="gameHistoryBody__table__body">
-                            {player.gameHistory.map((game) => {
+                            {player.gameHistory.map((game,idx) => {
                                 return (
-                                    <div className="gameHistoryBody__table_body_row">
+                                    <div className="gameHistoryBody__table_body_row" key = {idx}>
                                         <p>{game.currentDate}</p>
                                         <p>{calculateTotalScoreGameHistory(game)}</p>
                                         <p>{calculateRatioGameHistory(game)}%</p>
