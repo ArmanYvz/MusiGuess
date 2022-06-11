@@ -1,6 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
+import "./Timer.css";
+
 const Timer = ({pullTime, playbackTime}) => {
     const[time, setTime] = useState(playbackTime);
 
@@ -20,7 +22,7 @@ const Timer = ({pullTime, playbackTime}) => {
 
     return(
         <>
-        <button type="button" id = "timeButton" disabled >Time: {(Math.round(time * 100)/100).toFixed(2)} </button>
+        <button type="button" id = "timeButton"  ><p>Time: {(Math.round(time * 100)/100).toFixed(2)} </p></button>
         </>
     )
 }

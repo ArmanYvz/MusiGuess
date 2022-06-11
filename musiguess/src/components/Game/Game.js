@@ -400,6 +400,13 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
                 </div>
               </div>
             )}
+
+          {isTimerActive && (
+            <Timer pullTime={pull_data} playbackTime={lobby.playbackTime} />
+          )}
+
+          
+
           </div>
         </div>
       </div>
@@ -411,9 +418,6 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
           </div>
         </div>
         <div className="game__footer__right">
-          {isTimerActive && (
-            <Timer pullTime={pull_data} playbackTime={lobby.playbackTime} />
-          )}
           <button
             onClick={handleExitGame}
             className="game__footer__right__exitButton"
