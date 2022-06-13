@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { CircularProgress, CircularProgressLabel } from '@chakra-ui/react'
 
 import "./Timer.css";
 
@@ -21,9 +22,13 @@ const Timer = ({pullTime, playbackTime}) => {
     }, [])
 
     return(
-        <>
-        <button type="button" id = "timeButton"  ><p>Time: {(Math.round(time * 100)/100).toFixed(2)} </p></button>
-        </>
+        <div className="timer-container">
+        {/* <button type="button" id = "timeButton"  ></button> */}
+        <p>Time Left</p>
+        <CircularProgress value={Math.round((time/playbackTime)*100).toFixed(2)} size = "300px" thickness="5px" color = "rgba(234, 238, 19, 0.6)">
+            <CircularProgressLabel><p>{(Math.round(time * 100)/100).toFixed(2)}</p> </CircularProgressLabel>
+        </CircularProgress>
+        </div>
     )
 }
 
