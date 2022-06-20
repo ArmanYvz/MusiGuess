@@ -25,6 +25,7 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
     if (!user) return navigate("/", { replace: true });
   }, [user, loading]);
   var time = 0;
+  var falseSelection = false;
 
   const [isTimerActive, setIsTimerActive] = useState(false);
 
@@ -186,19 +187,67 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
     } else {
       // else it means we already made a selection, so render answers as disabled
       return prevAnswers.current.map((answer, idx) => {
+        if (falseSelection && lobby.roundEnded) {
+          if (answer === lobby.tracks[lobby.currentRound - 1].trackName) {
+            return (
+              <div
+                style={{ backgroundColor: "green" }}
+                className="game__main__left__questionContainer__answers__answer"
+                key={idx}
+              >
+                <p className="noselect" disabled={true}>
+                  {answer}
+                </p>
+              </div>
+            );
+          }
+        }
+
         if (answer === selectionText.current) {
           //if answer was our latest selection, render it as yellow background
-          return (
-            <div
-              style={{ backgroundColor: "yellow" }}
-              className="game__main__left__questionContainer__answers__answer"
-              key={idx}
-            >
-              <p className="noselect" disabled={true}>
-                {answer}
-              </p>
-            </div>
-          );
+          if (!lobby.roundEnded) {
+            return (
+              <div
+                style={{ backgroundColor: "yellow" }}
+                className="game__main__left__questionContainer__answers__answer"
+                key={idx}
+              >
+                <p className="noselect" disabled={true}>
+                  {answer}
+                </p>
+              </div>
+            );
+          }
+          else {
+            console.log(lobby.tracks[lobby.currentRound - 1].trackName);
+            if (lobby.tracks[lobby.currentRound - 1].trackName === answer) {
+              return (
+                <div
+                  style={{ backgroundColor: "green" }}
+                  className="game__main__left__questionContainer__answers__answer"
+                  key={idx}
+                >
+                  <p className="noselect" disabled={true}>
+                    {answer}
+                  </p>
+                </div>
+              );
+            }
+            else {
+              falseSelection = true;
+              return (
+                <div
+                  style={{ backgroundColor: "red" }}
+                  className="game__main__left__questionContainer__answers__answer"
+                  key={idx}
+                >
+                  <p className="noselect" disabled={true}>
+                    {answer}
+                  </p>
+                </div>
+              );
+            }
+          }
         } else {
           // else it isn't our selection, so render it normally
           return (
