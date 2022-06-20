@@ -40,7 +40,7 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
   useEffect(() => {
     setUserSelectionDone(false);
     didRoundStart.current = false;
-    setIsTimerActive(true);
+    //setIsTimerActive(true);
     const answers = [];
 
     Object.keys(lobby.wrongAnswers[lobby.currentRound - 1]).forEach((key) => {
@@ -148,9 +148,38 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
   };
 
   const QuestionAnswers = () => {
-    //console.log(shuffledAnswers);
+    // if we never made a selection, render answers as enabled so we can choose during round
     if (!userSelectionDone) {
-      // if we never made a selection, render answers as enabled so we can choose during round
+      if (lobby.roundEnded) {
+        return prevAnswers.current.map((answer, idx) => {
+          if (answer === lobby.tracks[lobby.currentRound - 1].trackName) {
+            return (
+              <div
+                style={{ backgroundColor: "green" }}
+                className="game__main__left__questionContainer__answers__answer"
+                key={idx}
+              >
+                <p className="noselect" disabled={true}>
+                  {answer}
+                </p>
+              </div>
+            );
+          }
+          else {
+            return (
+              <div
+                className="game__main__left__questionContainer__answers__answer"
+                key={idx}
+              >
+                <p className="noselect" disabled={true}>
+                  {answer}
+                </p>
+              </div>
+            );
+          }
+        });
+      }
+
       if (shuffledAnswers.length > 0) {
         return shuffledAnswers.map((answer, idx) => {
           return (
@@ -184,10 +213,11 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
           return <p className="noselect">loading...</p>;
         }
       }
-    } else {
+    } 
+    else {
       // else it means we already made a selection, so render answers as disabled
       return prevAnswers.current.map((answer, idx) => {
-        if (falseSelection && lobby.roundEnded) {
+        if (lobby.roundEnded) {
           if (answer === lobby.tracks[lobby.currentRound - 1].trackName) {
             return (
               <div
@@ -220,21 +250,7 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
           }
           else {
             console.log(lobby.tracks[lobby.currentRound - 1].trackName);
-            if (lobby.tracks[lobby.currentRound - 1].trackName === answer) {
-              return (
-                <div
-                  style={{ backgroundColor: "green" }}
-                  className="game__main__left__questionContainer__answers__answer"
-                  key={idx}
-                >
-                  <p className="noselect" disabled={true}>
-                    {answer}
-                  </p>
-                </div>
-              );
-            }
-            else {
-              falseSelection = true;
+            if (lobby.tracks[lobby.currentRound - 1].trackName !== answer) {
               return (
                 <div
                   style={{ backgroundColor: "red" }}
@@ -248,7 +264,8 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
               );
             }
           }
-        } else {
+        } 
+        else {
           // else it isn't our selection, so render it normally
           return (
             <div
@@ -353,6 +370,7 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
       arr.map((sound, i) => {
         if (i === audioIdx) {
           sound.audio.play();
+          setIsTimerActive(true);
           return { ...sound, play: true };
         }
         sound.audio.pause();
