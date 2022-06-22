@@ -6,7 +6,7 @@ import { db, getGameHistoryOfPlayer } from "../../firebase";
 import "./GameHistory.css";
 import { doc, collection, query, onSnapshot, setDoc } from "firebase/firestore";
 import { calculateRatioGameHistory, calculateAvgAnswerTimeGameHistory, calculateTotalScoreGameHistory } from "../../utils/GameUtils";
-import { auth } from "../../firebase";
+import { auth, getPlaylistName } from "../../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 const GameHistory = () => {
@@ -22,11 +22,9 @@ const GameHistory = () => {
     useEffect(() => {
         if (loading) return;
         if (!user) return navigate("/", { replace: true });
-        //const data = getGameHistoryOfPlayer(localStorage.getItem("userId"));
         const q = query(doc(db, `users/` + `${localStorage.getItem("userId")}`));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             setPlayer(querySnapshot.data());
-            // console.log(player);
         })
 
         return () => {
@@ -55,6 +53,8 @@ const GameHistory = () => {
                     <div className="gameHistoryBody__table">
                         <div className="gameHistoryBody__table__header">
                             <p>Date</p>
+                            <p>Playlist</p>
+                            <p>No Rounds</p>
                             <p>Score</p>
                             <p>Ratio</p>
                             <p>Avg. Answer Time</p>
@@ -64,6 +64,8 @@ const GameHistory = () => {
                                 return (
                                     <div className="gameHistoryBody__table_body_row" key = {idx}>
                                         <p>{game.currentDate}</p>
+                                        <p>{game.playlistName}</p>
+                                        <p>{game.noRounds}</p>
                                         <p>{calculateTotalScoreGameHistory(game)}</p>
                                         <p>{calculateRatioGameHistory(game)}%</p>
                                         <p>{calculateAvgAnswerTimeGameHistory(game)} sec</p>

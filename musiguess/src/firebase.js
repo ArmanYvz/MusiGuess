@@ -56,8 +56,7 @@ const signInWithGoogle = async() => {
 const signInWithEmailAndPassword = async (email, password) => {
     try {
       const res = await auth.signInWithEmailAndPassword(email, password);
-      const user = res.user; /*
-      localStorage.setItem("userId", user.uid); */
+      const user = res.user;
       try {
         const query = await db
           .collection("users")
@@ -159,7 +158,6 @@ const makeAnotherPlayerHost = async(lobbyId) =>{
 
   const lobbySnap = await getDoc(lobbyRef);
   const lobby =  lobbySnap.data();
-  //let playerToMakeHost = lobby.players[0];
 
   let playersCopy = lobby.players;
   if(playersCopy.length !== 0){
@@ -218,7 +216,7 @@ const updateLobbyStatusDB = async(lobbyId, roundEnded, currentRound, status) => 
   await prepareAllPlayersToNextRound(lobbyId);
 }
 
-const updateGameHistoryOfPlayer = async(playerId, playbackTime, noRounds, tracks, answers, scores, remainingTimes, currentDate) => {
+const updateGameHistoryOfPlayer = async(playerId, playbackTime, noRounds, tracks, answers, scores, remainingTimes, currentDate, playlistName) => {
   const userRef = doc(db, "users", `${playerId}`);
 
   let userSnap = await getDoc(userRef);
@@ -233,6 +231,7 @@ const updateGameHistoryOfPlayer = async(playerId, playbackTime, noRounds, tracks
     newGame.scores = scores;
     newGame.remainingTimes = remainingTimes;
     newGame.currentDate = currentDate;
+    newGame.playlistName = playlistName;
     await updateDoc(userRef, {
       gameHistory: [...gameHistoryCopy, newGame]
     })
@@ -249,8 +248,14 @@ const getGameHistoryOfPlayer = async(playerId) => {
   }
 }
 
-const updatePlaylistTopScores = async(playlistId, playerId) => {
-
+const getPlaylistName = async(playlistId) => {
+  const playlistRef = doc(db, "playlists", `${playlistId}`);
+  let playlistSnap = await getDoc(playlistRef);
+  let playlist = playlistSnap.data();
+  if (playlist !== undefined) {
+    console.log(playlist.playlistName);
+    return playlist.playlistName;
+  }
 }
 
 const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingTime) => {
@@ -283,12 +288,10 @@ const updatePlayerRoundData = async(playerId, lobbyId, answer, score, remainingT
   let retVal = true;
 
   playersCopy.forEach((player) => {
-    //console.log(player.selectionDone);
     if (!player.selectionDone) {
       retVal = false;
     }
   })
-  // console.log(retVal);
 
   return retVal;
 
@@ -320,10 +323,6 @@ const checkIfAllPlayersAnswered = async(lobbyId) => {
   let playersCopy = lobby.players;
 
   playersCopy.forEach((player) => {
-    
-    // if (player.selectionDone) {
-    //   return true;
-    // }
     console.log(player);
   })
 }
@@ -396,5 +395,6 @@ export {
     checkIfPlayerAnswered,
     updateGameHistoryOfPlayer,
     getPlaylistsFromDB,
+    getPlaylistName,
     logout,
 };

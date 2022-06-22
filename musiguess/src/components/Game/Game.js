@@ -12,6 +12,7 @@ import {
   updateGameHistoryOfPlayer,
   checkIfPlayerAnswered,
   checkIfAllPlayersAnswered,
+  getPlaylistName
 } from "../../firebase";
 import Timer from "../Timer/Timer";
 import { auth } from "../../firebase";
@@ -30,8 +31,6 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
   const [isTimerActive, setIsTimerActive] = useState(false);
 
   const [userSelectionDone, setUserSelectionDone] = useState(false);
-  //const[roundStarts,setRoundStarts] = useState(false);
-  //const[shuffledAnswers, setShuffledAnswers] = useState([]);
   var shuffledAnswers = [];
   const prevAnswers = useRef();
   const didRoundStart = useRef();
@@ -40,7 +39,7 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
   useEffect(() => {
     setUserSelectionDone(false);
     didRoundStart.current = false;
-    //setIsTimerActive(true);
+    setIsTimerActive(true);
     const answers = [];
 
     Object.keys(lobby.wrongAnswers[lobby.currentRound - 1]).forEach((key) => {
@@ -49,38 +48,24 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
 
     answers.push(lobby.tracks[lobby.currentRound - 1].trackName);
     if (!didRoundStart.current) {
-      //console.log("burdayim");
       shuffledAnswers = shuffle(answers);
       prevAnswers.current = shuffledAnswers; // save those answers in a variable - we'll need them after component re-renders
     }
     didRoundStart.current = true;
-    // console.log(didRoundStart.current);
   }, [lobby.currentRound]);
-
-  /*useEffect(() => {
-    window.onbeforeunload = function () {
-      stopSound(lobby.currentRound-1);
-    };
-    return () => {
-      window.onbeforeunload = null;
-    };
-    
-  }, []);*/
 
   const handleExitGame = () => {
     navigate("/lobbies", { replace: true });
   };
 
   const handleNextRound = () => {
-    // console.log("next round click");
     setUserSelectionDone(false);
     updateLobbyStatusDB(lobbyId, false, lobby.currentRound + 1, lobby.status);
   };
 
   const handleEndGame = async () => {
-    // console.log("end game click");
-    // console.log(lobby.tracks);
     let currentDate = new Date().toLocaleString() + "";
+    let playlistName = await getPlaylistName(lobby.playlistId);
     await lobby.players.forEach((player) => {
       updateGameHistoryOfPlayer(
         player.userId,
@@ -90,7 +75,8 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
         player.answers,
         player.scores,
         player.remainingTimes,
-        currentDate
+        currentDate,
+        playlistName
       );
     });
     updateLobbyStatusDB(lobbyId, false, lobby.currentRound, "Game End");
@@ -110,7 +96,6 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
 
   const pull_data = async (data) => {
     time = (Math.round(data * 100) / 100).toFixed(2);
-    //console.log(time);
     if (time < 0.01) {
       // it means round ended and we still didn't make a selection
       stopSound(lobby.currentRound - 1);
@@ -128,8 +113,7 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
     }
   };
 
-  const handleAnswerClick = async (text) => {
-    console.log(text);
+  const handleAnswerClick = async(text) => {
     setIsTimerActive(false);
     setUserSelectionDone(true);
     stopSound(lobby.currentRound - 1); // stop sound after we made a choice
@@ -143,7 +127,7 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
       time
     );
     if (resp) {
-      updateLobbyStatusDB(lobbyId, true, lobby.currentRound, lobby.status);
+      await updateLobbyStatusDB(lobbyId, true, lobby.currentRound, lobby.status);
     }
   };
 
@@ -287,7 +271,6 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
       (a, b) =>
         b.scores[lobby.currentRound - 1] - a.scores[lobby.currentRound - 1]
     );
-    // console.log(playersSorted);
     return playersSorted.map((player) => {
       return (
         <div
@@ -370,7 +353,7 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
       arr.map((sound, i) => {
         if (i === audioIdx) {
           sound.audio.play();
-          setIsTimerActive(true);
+          //setIsTimerActive(true);
           return { ...sound, play: true };
         }
         sound.audio.pause();
@@ -394,7 +377,6 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
   const { roundEnded } = lobby;
 
   useEffect(() => {
-    //console.log(audioArray);
     if (roundEnded) {
       stopSound(lobby.currentRound - 1);
     } else {
@@ -470,6 +452,10 @@ const Game = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
 
           {isTimerActive && (
             <Timer pullTime={pull_data} playbackTime={lobby.playbackTime} />
+          )}
+
+          {userSelectionDone && !lobby.roundEnded && (
+            <p>Waiting for others...</p>
           )}
 
           

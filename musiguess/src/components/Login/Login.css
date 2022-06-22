@@ -1,5 +1,5 @@
 body {
-    /* background-image: url('../../assets/brooklyn-bridge.jpg'); */
+    
 }
 
 .login-main-container{
@@ -10,7 +10,6 @@ body {
 
 .login-main-container p {
   text-decoration: none;
-  /* color:#91CB82; */
   color: white;
   text-align:center;
 }
@@ -64,9 +63,7 @@ body {
 
 .header-container {
     display:flex;
-    /* flex-direction: column; */
     gap:1rem;
-    /* text-align: center; */
     align-items: center;
     justify-content: center;
     margin-top: 3%;

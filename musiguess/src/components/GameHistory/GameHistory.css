@@ -88,7 +88,7 @@
 .gameHistoryBody__table__header {
   display: flex;
   justify-content: center;
-  gap: 6rem;
+  gap: 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.25);
   padding-bottom: 1rem;
 }
@@ -117,7 +117,7 @@
 .gameHistoryBody__table_body_row {
   display: flex;
   justify-content: center;
-  gap: 6rem;
+  gap: 2rem;
   align-items: center;
   margin: 1rem 2rem;
   background: rgba(255, 255, 255, 0.25);

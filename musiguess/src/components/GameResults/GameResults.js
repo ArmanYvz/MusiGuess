@@ -8,13 +8,6 @@ import { useNavigate } from "react-router";
 
 const GameResults = ({ lobby, currentPlayerHostCheck, lobbyId }) => {
     const navigate = useNavigate();
-    //const [user, loading, error] = useAuthState(auth);
-
-    // useEffect(() => {
-    //     if (loading) return;
-    //     if (!user) return navigate("/", { replace: true });
-    // }, [user, loading])
-
     const handleExitButton = () => {
         navigate("/home", { replace: true });
     } 

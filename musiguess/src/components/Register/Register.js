@@ -8,8 +8,6 @@ import {
 } from "../../firebase";
 import "./Register.css";
 
-//import Loading from "../Loading";
-
 function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,17 +15,12 @@ function Register() {
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
 
-  //const [showLoading, setShowLoading] = useState(false);
-
   const register = async() => {
-    //setShowLoading(true);
     if (!name){
-      //setShowLoading(false);
       alert("Please enter name");
     }
     else {
       await registerWithEmailAndPassword(name, email, password);
-      //setShowLoading(false);
     }
     
   };

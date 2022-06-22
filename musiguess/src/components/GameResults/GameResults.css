@@ -15,7 +15,6 @@
 .gameResults__main__leftTable{
     display:flex;
     flex-direction: column;
-    /* background:linear-gradient(180deg, rgba(255, 255, 255,0.8) 0%, rgba(225, 225, 225, 0.5) 100%); */
     background: linear-gradient(180deg, #1D1B87 0%,rgba(168, 168, 168, 1) 100%);
     backdrop-filter: blur(70px);
     border-radius: 16px;
@@ -90,7 +89,6 @@
     display:flex;
     margin: 0 1rem;
     padding:0 0.5rem;
-    /* justify-content: space-around; */
 
 }
 
@@ -137,7 +135,6 @@
     display:flex;
     justify-content: space-between;
     align-items: center;
-    /* margin-right:1rem; */
     padding:0 1.5rem;
 }
 
@@ -151,7 +148,6 @@
     font-style: normal;
     font-weight: 400;
     font-size: 39px;
-    /* line-height: 64px; */
     color: rgba(234, 238, 19, 0.5);
     transition: all 0.3s ease-in-out;
 }
@@ -165,7 +161,6 @@
     font-style: normal;
     font-weight: 400;
     font-size: 39px;
-    /* line-height: 32px; */
     margin-left: 5rem;
     color: rgba(255, 255, 255, 0.5);
     transition: all 0.3s ease-in-out;

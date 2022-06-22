@@ -4,20 +4,14 @@ import { auth, signInWithEmailAndPassword, signInWithGoogle } from "../../fireba
 import { useAuthState } from "react-firebase-hooks/auth";
 import "./Login.css";
 
-//import Loading from "../Loading";
-
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [user, loading, error] = useAuthState(auth);
     const navigate = useNavigate();
 
-    //const [showLoading,setShowLoading] = useState(false);
-
     const handleLoginButtonClickEmail = async() =>{
-        //setShowLoading(true);
         await signInWithEmailAndPassword(email, password);
-        //setShowLoading(false);
     }
 
     useEffect(() => {
@@ -74,7 +68,7 @@ function Login() {
         
                 </div>
             </div>
-            <h3 className="headerText2">Login to challenge your music repertoire!</h3>
+            <h3 className="headerText2">Login and challenge your music knowledge!</h3>
         </div>
         </>
     );

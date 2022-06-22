@@ -14,12 +14,9 @@
 
 .game__main__left{
     flex:3 
-    /* display: flex;
-    flex-direction: column; */
 }
 
 .game__main__left__questionContainer{
-    /* background: rgba(255, 255, 255, 0.5); */
     display:flex;
     flex-direction: column;
     gap:2rem;
@@ -251,7 +248,6 @@
     font-style: normal;
     font-weight: 400;
     font-size: 39px;
-    /* line-height: 64px; */
     color: rgba(234, 238, 19, 0.5);
     transition: all 0.3s ease-in-out;
 }
@@ -261,7 +257,6 @@
     font-style: normal;
     font-weight: 400;
     font-size: 39px;
-    /* line-height: 32px; */
     margin-left: 5rem;
     color: rgba(255, 255, 255, 0.5);
     transition: all 0.3s ease-in-out;

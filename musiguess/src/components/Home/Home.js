@@ -18,7 +18,6 @@ const Home = () => {
   };
 
   const gameHistoryButtonHandle = () => {
-    //todo navigate to gamehistory
     navigate("/gamehistory", { replace: true });
   }
 

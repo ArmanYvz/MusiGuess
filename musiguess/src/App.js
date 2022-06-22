@@ -15,8 +15,6 @@ import GameHistory from "./components/GameHistory/GameHistory";
 import "firebase/compat/auth";
 
 function App() {
-
-  //const { currentUser } = auth;
   
   return (
     <Router>

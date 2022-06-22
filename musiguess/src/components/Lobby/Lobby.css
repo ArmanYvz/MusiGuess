@@ -24,38 +24,6 @@ p {
   align-items: center;
 }
 
-/* .lobby__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin:2rem 12rem;
-}
-
-.lobby__header__logo {
-    display: flex;
-    flex-direction: column;
-}
-
-.lobby__header__logoText__top{
-    font-family: "Sarala-Regular";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 48px;
-    line-height: 64px;
-  
-    color: #eaee13;
-}
-
-.lobby__header__logoText__bottom {
-    font-family: "Sarala-Regular";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 48px;
-    line-height: 32px;
-    margin-left: 5.5rem;
-    color: #ffffff;
-  } */
-
 .lobby__main {
   display: flex;
   justify-content: center;

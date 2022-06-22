@@ -10,7 +10,6 @@ import { auth, db } from "../../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Game from "../Game/Game";
 import GameResults from "../GameResults/GameResults";
-// import useLobby from "../../hooks/useLobby";
 
 const Lobby = () => {
   const navigate = useNavigate();
@@ -26,21 +25,12 @@ const Lobby = () => {
   //a state to get extra info like should user be the host or not
   const { state } = useLocation();
 
-  //a state to get the lobby data
-  // const { isFetchingLobby, lobby, setLobby } = useLobby({ lobbyId });
-
   const [isFetchingLobby,setIsFetchingLobby] = useState(true);
   const [lobby,setLobby] = useState();
 
   const {maxPlayers,players} = isFetchingLobby ? -1 : lobby;
 
-  // const currentPlayer = isFetchingLobby ? null : lobby.players.filter((player)=>player.uid === localStorage.getItem("userId"))[0];
-
-  // const [currentPlayer,setCurrentPlayer] = useState();
-
   const [playlists,setPlaylists] = useState([]);
-  
-  //var gameStartClicked = false;
 
   useEffect(()=>{
       const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
@@ -64,23 +54,6 @@ const Lobby = () => {
 
   },[]);
 
-  // useEffect( async()=>{
-  //   const lobbyDocRef = doc(db, "lobbies", `${lobbyId}`);
-  //   console.log("db update gidiyoo")
-  //   await updateDoc(lobbyDocRef, {
-  //       ...lobby
-  //   });
-  // },[lobby]);
-
-  // const [newPlayer,setNewPlayer] = useState({
-  //   userId: localStorage.getItem("userId"),
-  //   userName: localStorage.getItem("userName"),
-  //   isHost: false,
-  //   scores: [],
-  //   answers: [],
-  //   remainingTimes: [],
-  // });
-
   let newPlayer = {
     userId: localStorage.getItem("userId"),
     userName: localStorage.getItem("userName"),
@@ -92,39 +65,8 @@ const Lobby = () => {
     remainingTimes: [],
   };
 
-
-  // make the user host if he came from lobbies with create user button
-  // useEffect(() => {
-  //   if (state && state.isHost) {
-  //     // setPlayer((prevUser) => {
-  //     //   return { ...prevUser, isHost: true };
-  //     // });
-  //     setNewPlayer((prev)=>{
-  //       return {...prev, isHost: true};
-  //     })
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //     if(!isFetchingLobby){
-  //       // console.log(lobby.players.length)
-  //       if (lobby.players.length === 0) {
-  //         // console.log("bura çalıştı");
-  //         // setNewPlayer((prev)=>{
-  //         //   return {...prev, isHost: true};
-  //         // })
-  //         newPlayer.isHost = true;
-  //       }
-  //       else{
-          
-  //       }
-  //     }
-
-  // }, [isFetchingLobby]);
-
   useEffect(()=>{
     if(!isFetchingLobby){
-      // console.log(lobby.players.length)
       let nobodyIsHost = true;
 
       lobby.players.forEach((player)=>{
@@ -143,8 +85,6 @@ const Lobby = () => {
   // join lobby on page load, delete user when component unmounts
   useEffect(() => {
     if (!isFetchingLobby) {
-      // console.log("adding user...");
-      // console.log(newPlayer);
       if(players.length +1 > maxPlayers){
         alert("Lobby is full");
         navigate("/lobbies", { replace: true });
@@ -168,13 +108,7 @@ const Lobby = () => {
   // this removes user if user closes browser directly
   useEffect(() => {
     window.onbeforeunload = function () {
-      //console.log("aa");
-      // if gameStartClicked true it means game will start, controlled unload happened
-      // so don't call deletePlayerFromLobbyDB(), player needs to stay in DB.
-      //if (!gameStartClicked) {   
-        deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId);
-      //}
-      //gameStartClicked = false;
+      deletePlayerFromLobbyDB(localStorage.getItem("userId"), lobbyId);
     };
     return  () => {
       window.onbeforeunload = null;
@@ -188,7 +122,6 @@ const Lobby = () => {
     playlistsFromDB.then(playlists => {
       setPlaylists(playlists);
     })
-    // setPlaylists(playlistsFromDB);
   },[])
 
   const handleDropdownChange = (event) => {
@@ -203,7 +136,6 @@ const Lobby = () => {
   };
 
   const handleStartGame = async() => {
-    //gameStartClicked = true;
     try {
       getMusicDataFromServer().then(data => {
         data.tracks.forEach(d => {
@@ -224,17 +156,13 @@ const Lobby = () => {
     } catch(err) {
       alert(err);
     }
-    
-    //navigate("/game", { replace: true });
   };
 
   const getMusicDataFromServer = async() => {
     try {
       const response = await fetch(`https://musiguess.herokuapp.com/api/${lobby.playlistId}/${lobby.noRounds}`);
-      //console.log(response.json());
       let returnArr = [];
       await response.json().then(data => {
-        //returnArr.playlistName = data.playlistName;
         returnArr.tracks = data.tracks;
         returnArr.wrongAnswers = data.wrongAnswers;
       })
@@ -280,18 +208,14 @@ const Lobby = () => {
   const currentPlayerHostCheck = () => {
 
     const playerToCheck = lobby.players.filter((player)=> player.userId === localStorage.getItem("userId"))[0];
-    //console.log(playerToCheck);
-
     try {
       if (!isFetchingLobby) {
-        //console.log("buradayim");
         const hostStatus = playerToCheck.isHost;
         return hostStatus;
       }
       
     }
     catch (err) {
-      // console.log(err);
     }
 
   }
